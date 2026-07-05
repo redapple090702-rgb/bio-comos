@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bio Cosmos - 드레이크 방정식 시뮬레이터</title>
     <style>
         :root {
@@ -10,779 +10,600 @@
             --panel-color: #0f0f2d;
             --accent-color: #00ffff;
             --danger-color: #ff0055;
-            --success-color: #00ff44;
             --text-color: #ffffff;
         }
 
         * {
-            box-shadow: none;
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow-x: hidden;
-            font-size: 16px;
+            overflow: hidden;
         }
 
+        /* 화면 세션 관리 */
         .screen {
             display: none;
-            width: 100%;
-            min-height: 100vh;
+            width: 100vw;
+            height: 100vh;
             position: absolute;
             top: 0;
             left: 0;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: radial-gradient(circle at center, #111133 0%, #050510 100%);
-            padding: 20px;
         }
 
         .screen.active {
             display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
-        .lobby-title {
+        /* 1. 로비 스크린 (마름모 버튼) */
+        #lobby-screen h1 {
             font-size: 3rem;
-            margin-bottom: 40px;
-            text-transform: uppercase;
-            letter-spacing: 6px;
             color: var(--accent-color);
             text-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
-            text-align: center;
+            margin-bottom: 80px;
         }
 
         .menu-container {
             display: flex;
-            gap: 40px;
-            flex-wrap: wrap;
-            justify-content: center;
+            gap: 60px;
         }
 
-        .diamond-btn {
-            width: 120px;
-            height: 120px;
-            background: var(--panel-color);
+        .rhombus-btn {
+            width: 140px;
+            height: 140px;
+            background: rgba(15, 15, 45, 0.8);
             border: 2px solid var(--accent-color);
             transform: rotate(45deg);
+            cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
-            margin: 20px;
         }
 
-        .diamond-btn:hover, .diamond-btn:active {
+        .rhombus-btn:hover {
             background: var(--accent-color);
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+            box-shadow: 0 0 25px var(--accent-color);
         }
 
-        .diamond-btn span {
+        .rhombus-btn span {
             transform: rotate(-45deg);
-            color: var(--text-color);
+            color: #fff;
             font-weight: bold;
-            font-size: 1rem;
-            letter-spacing: 1px;
+            font-size: 1.1rem;
             text-align: center;
-            white-space: nowrap;
         }
 
-        .diamond-btn:hover span, .diamond-btn:active span { color: #000; }
+        .rhombus-btn:hover span {
+            color: #000;
+        }
 
+        /* 상단 네비게이션 트리거 (되돌아가기 / 리셋) */
         .nav-btn {
             position: absolute;
             top: 20px;
-            width: 45px;
-            height: 45px;
-            cursor: pointer;
-            z-index: 10;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.4rem;
-            background: rgba(15, 15, 45, 0.8);
-            border: 1px solid var(--accent-color);
-            border-radius: 4px;
-        }
-
-        .btn-back { left: 20px; color: var(--accent-color); }
-        .btn-reset { right: 20px; color: var(--danger-color); border-color: var(--danger-color); }
-
-        .tutorial-box {
+            width: 40px;
+            height: 40px;
             background: var(--panel-color);
             border: 1px solid var(--accent-color);
-            padding: 30px;
-            border-radius: 8px;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 0 20px rgba(0,255,255,0.1);
-        }
-        .tutorial-box h2 { color: var(--accent-color); margin-bottom: 20px; font-size: 1.5rem; }
-        .tutorial-box p { line-height: 1.6; margin-bottom: 30px; color: #ccc; font-size: 0.95rem; text-align: left; }
-        
-        .base-btn {
-            background: transparent;
-            border: 1px solid var(--accent-color);
-            color: var(--text-color);
-            padding: 12px 30px;
-            cursor: pointer;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 1rem;
-        }
-        .base-btn:hover, .base-btn:active { background: var(--accent-color); color: #000; }
-
-        .game-layout {
-            display: grid;
-            grid-template-columns: 1fr 1.2fr 1fr;
-            width: 100%;
-            max-width: 1400px;
-            margin-top: 70px;
-            gap: 20px;
-            padding: 10px;
-        }
-
-        .panel {
-            background: rgba(15, 15, 45, 0.7);
-            border: 1px solid rgba(0, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .visual-container {
-            justify-content: center;
-            align-items: center;
-            min-height: 300px;
-        }
-
-        .ascii-box {
-            font-family: 'Courier New', Courier, monospace;
-            white-space: pre;
-            font-size: 11px;
-            line-height: 1.1;
-            text-align: center;
-            color: #88a;
-            background: #03030a;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #113;
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        .control-container h3 { margin-bottom: 15px; color: var(--accent-color); font-size: 1.1rem; border-bottom: 1px solid #224; padding-bottom: 5px;}
-        .control-container h3:not(:first-child) { margin-top: 20px; }
-        .slider-group { margin-bottom: 14px; }
-        .slider-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px; color: #aaa; }
-        
-        .slider-group input[type="range"] {
-            width: 100%;
-            height: 15px;
-            accent-color: var(--accent-color);
-            cursor: pointer;
-        }
-        
-        .select-custom {
-            width: 100%;
-            background: #050515;
-            border: 1px solid #225;
-            color: #fff;
-            padding: 10px;
-            border-radius: 4px;
-            margin-top: 5px;
-            outline: none;
-            font-size: 0.9rem;
-        }
-
-        .hint-container { gap: 15px; min-height: 250px; }
-        .hint-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
-        .hint-select { flex: 1; padding: 10px; background: #050515; border: 1px solid #225; color: #fff; border-radius: 4px; font-size: 0.9rem; }
-        .btn-hint-trigger {
-            font-size: 1.3rem;
-            background: none;
-            border: 1px solid var(--accent-color);
-            padding: 6px 14px;
-            border-radius: 4px;
-            cursor: pointer;
             color: var(--accent-color);
-        }
-        .btn-hint-trigger:hover { background: var(--accent-color); color: #000; }
-        
-        .hint-display-box {
-            flex: 1;
-            background: rgba(0,0,0,0.4);
-            border: 1px dashed #225;
-            border-radius: 6px;
-            padding: 15px;
-            font-size: 0.9rem;
-            line-height: 1.6;
-            color: #00ffcc;
-            overflow-y: auto;
-            min-height: 100px;
-        }
-
-        /* 도감 상단 아카이브 그리드 구조 */
-        .book-container {
-            width: 100%;
-            max-width: 1200px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 12px;
-            padding: 10px 0;
-            max-height: 45vh;
-            overflow-y: auto;
-            margin-bottom: 20px;
-        }
-        .book-item {
-            background: #09091f;
-            border: 1px solid #224;
-            border-radius: 6px;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            text-align: center;
-            padding: 12px 8px;
-            font-size: 0.85rem;
-            color: #556;
-            min-height: 80px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            border-radius: 4px;
+            font-size: 1.2rem;
+            z-index: 10;
         }
-        .book-item:hover {
-            border-color: rgba(0, 255, 255, 0.5);
-        }
-        .book-item.unlocked {
-            border-color: var(--accent-color);
-            color: #fff;
-            background: linear-gradient(135deg, #0f0f3d 0%, #050515 100%);
-            box-shadow: 0 0 10px rgba(0,255,255,0.1);
-        }
-        .book-item.selected {
-            border-color: #ffaa00 !important;
-            background: #151545 !important;
-        }
+        .nav-btn:hover { background: var(--accent-color); color: #000; }
+        #back-btn { left: 20px; }
+        #reset-btn { right: 20px; }
 
-        /* 💡 도감 내부 실시간 하단 정보창 스펙 */
-        .book-viewer {
-            width: 100%;
-            max-width: 1200px;
-            background: #0d0d2b;
-            border: 1px solid #202060;
-            border-radius: 8px;
-            padding: 20px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            text-align: left;
-        }
-        .viewer-box h4 { font-size: 14px; color: var(--accent-color); margin-bottom: 8px; border-left: 3px solid var(--accent-color); padding-left: 6px; }
-        .viewer-box p { font-size: 14px; color: #ccc; line-height: 1.6; min-height: 40px;}
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .modal-overlay.active { display: flex; }
+        /* 2. 튜토리얼 스크린 */
         .modal-content {
             background: var(--panel-color);
             border: 2px solid var(--accent-color);
             padding: 30px;
             border-radius: 12px;
-            max-width: 450px;
-            width: 100%;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0,255,255,0.3);
+        }
+
+        .modal-content h2 { margin-bottom: 15px; color: var(--accent-color); }
+        .modal-content p { font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px; color: #ccc; }
+        .std-btn {
+            background: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 10px 25px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+        .std-btn:hover { background: var(--accent-color); color: #000; }
+
+        /* 3. 메인 인게임 시뮬레이터 인터페이스 */
+        .game-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr 1fr;
+            width: 95vw;
+            height: 85vh;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .game-panel {
+            background: rgba(15, 15, 45, 0.6);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 중앙 행성 구역 및 그래픽 고도화 */
+        .planet-zone {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .planet-view-box {
+            width: 220px;
+            height: 220px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .planet-sphere {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #4a5568, #2d3748, #1a202c);
+            box-shadow: inset -20px -20px 50px #000, 0 0 20px rgba(255,255,255,0.1);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #obs-status {
+            font-weight: bold;
+            color: var(--accent-color);
+            text-shadow: 0 0 10px rgba(0,255,255,0.4);
             text-align: center;
         }
-        .modal-content h2 { margin-bottom: 15px; color: var(--accent-color); font-size: 1.3rem; }
-        .modal-content p { margin-bottom: 25px; line-height: 1.6; font-size: 0.9rem; color: #ddd; }
-        .modal-btns { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
 
-        #true-ending-screen {
-            background: radial-gradient(circle at center, #1a0033 0%, #02000a 100%);
-            z-index: 200;
-            text-align: center;
-            padding: 30px;
-        }
-        #true-ending-screen h1 { font-size: 1.8rem; color: #ff00ff; text-shadow: 0 0 30px #ff00ff; margin-bottom: 15px; }
-        #true-ending-screen p { max-width: 500px; line-height: 1.7; font-size: 0.9rem; color: #e0bfff; margin-bottom: 25px; }
+        /* 변수 조절 슬라이더 및 설명 버튼 */
+        .section-title { font-size: 1rem; color: var(--accent-color); margin: 15px 0 10px 0; border-left: 3px solid var(--accent-color); padding-left: 8px; }
+        .control-item { margin-bottom: 15px; }
+        .control-header { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px; color: #a0aec0; }
+        .slider-row { display: flex; align-items: center; gap: 8px; }
+        input[type="range"] { flex: 1; accent-color: var(--accent-color); }
+        .info-trigger { background: #1a1a3a; border: 1px solid #3d3d7d; color: #8f8fff; width: 22px; height: 22px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
 
-        @media (max-width: 1024px) {
-            .game-layout {
-                grid-template-columns: 1fr;
-                margin-top: 60px;
-                overflow-y: auto;
-                max-height: calc(100vh - 70px);
-            }
-            .screen { justify-content: flex-start; }
-            .lobby-title { font-size: 2.2rem; }
-            .book-viewer { grid-template-columns: 1fr; }
-        }
+        /* 연구 분석 힌트 모듈 */
+        .hint-select-row { display: flex; gap: 5px; margin-bottom: 15px; }
+        select { flex: 1; background: #060613; border: 1px solid rgba(0,255,255,0.3); color: white; padding: 8px; border-radius: 4px; }
+        .bulb-btn { background: #1a1a3a; border: 1px solid var(--accent-color); color: var(--accent-color); width: 38px; height: 38px; border-radius: 4px; cursor: pointer; font-size: 1.1rem; }
 
-        @media (max-width: 480px) {
-            .lobby-title { font-size: 1.8rem; }
-            .diamond-btn { width: 90px; height: 90px; margin: 8px; }
-            .diamond-btn span { font-size: 0.8rem; }
-            .ascii-box { font-size: 9px; }
-        }
+        /* 4. 엔딩북(도감) 스타일 */
+        .book-container { width: 85vw; height: 75vh; display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .ending-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; overflow-y: auto; padding-right: 5px; }
+        .ending-slot { background: #131338; border: 1px solid #2d2d5e; padding: 15px; border-radius: 6px; cursor: pointer; text-align: center; color: #718096; transition: 0.2s; }
+        .ending-slot.unlocked { border-color: var(--accent-color); color: #fff; background: rgba(0,255,255,0.05); font-weight: bold; }
+        .ending-detail-panel { background: rgba(15,15,45,0.8); border: 1px solid rgba(0,255,255,0.3); border-radius: 8px; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+
+        /* 팝업 경고창 */
+        .overlay { display: none; position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.75); justify-content: center; align-items: center; z-index: 100; }
     </style>
 </head>
 <body>
 
+    <div id="back-btn" class="nav-btn" onclick="requestGoLobby()" style="display: none;">◀</div>
+    <div id="reset-btn" class="nav-btn" onclick="requestReset()" style="display: none;">🔄</div>
+
     <div id="lobby-screen" class="screen active">
-        <h1 class="lobby-title">Bio Cosmos</h1>
+        <h1>BIO COSMOS</h1>
         <div class="menu-container">
-            <div class="diamond-btn" onclick="navigation.startPlay()"><span>START</span></div>
-            <div class="diamond-btn" onclick="navigation.openBook()"><span>ENDING<br>BOOK</span></div>
+            <div class="rhombus-btn" onclick="pressStart()">
+                <span>START</span>
+            </div>
+            <div class="rhombus-btn" onclick="openEndingBook()">
+                <span>ENDING<br>BOOK</span>
+            </div>
         </div>
     </div>
 
     <div id="tutorial-screen" class="screen">
-        <div class="tutorial-box">
-            <h2>Cosmos 시뮬레이션 가이드</h2>
-            <p>우주생물학 연구원이 되어 행성의 환경 변수들을 통제하세요. 특정 조건 조합이 완성되면 행성의 지질학적 상태가 물리적으로 변화하며 고유 리포트가 수집됩니다.</p>
-            <button class="base-btn" onclick="navigation.closeTutorial()">시뮬레이터 가동</button>
+        <div class="modal-content">
+            <h2>🛸 시뮬레이션 가이드</h2>
+            <p>
+                '바이오 코스모스' 연구소에 오신 것을 환영합니다.<br>
+                당신은 행성의 물리, 지질, 화학 변수를 조절하여 지적 생명체가 탄생할 수 있는 최적의 환경 혹은 기괴한 외계 환경 엔딩을 개척해야 합니다.<br>
+                전구 모양의 힌트 모듈을 활용해 실마리를 얻고, 모든 엔딩을 해금하여 궁극의 'True 엔딩'을 달성해 보세요!
+            </p>
+            <button class="std-btn" onclick="exitTutorial()">시뮬레이터 접속</button>
         </div>
     </div>
 
     <div id="game-screen" class="screen">
-        <div class="nav-btn btn-back" onclick="navigation.toLobby()">◀</div>
-        <div class="nav-btn btn-reset" onclick="navigation.triggerResetModal()">🔄</div>
-
         <div class="game-layout">
-            <div class="panel visual-container">
-                <div id="planet-ascii" class="ascii-box"></div>
-                <div style="margin-top: 15px; text-align: center; font-size: 0.9rem; color: #88a; font-weight: bold;" id="planet-status-text">계측 중...</div>
+            
+            <div class="game-panel">
+                <div class="section-title">물리 및 지질 변수 조절 (ne)</div>
+                
+                <div class="control-item">
+                    <div class="control-header"><span>표면 온도</span><span id="lbl-temp">15°C</span></div>
+                    <div class="slider-row">
+                        <input type="range" id="p-temp" min="-100" max="500" value="15" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('표면 온도', '온도는 액체 상태의 물이 존재할 수 있는 구역을 정의하며 생명 진화 속도에 핵심 영향을 줍니다.')">?</button>
+                    </div>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-header"><span>온실가스 농도</span><span id="lbl-green">10%</span></div>
+                    <div class="slider-row">
+                        <input type="range" id="p-green" min="0" max="100" value="10" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('온실가스 농도', '대기 중 온실가스가 많아지면 열이 갇혀 폭주하는 온실효과 지옥이 생성될 수 있습니다.')">?</button>
+                    </div>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-header"><span>행성 질량비</span><span id="lbl-mass">1.0 M⊕</span></div>
+                    <div class="slider-row">
+                        <input type="range" id="p-mass" min="1" max="100" value="10" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('행성 질량비', '질량이 클수록 대기를 무겁게 붙잡아 강력한 중력장과 대기압을 형성합니다.')">?</button>
+                    </div>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-header"><span>자기장 보호막</span><span id="lbl-mag">50%</span></div>
+                    <div class="slider-row">
+                        <input type="range" id="p-mag" min="0" max="100" value="50" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('자기장 보호막', '우주로부터 불어오는 치명적인 전리 방사선과 태양풍을 차단해 주는 방어선입니다.')">?</button>
+                    </div>
+                </div>
+
+                <div class="section-title">화학 및 진화 생태계 변수</div>
+                
+                <div class="control-item">
+                    <div class="control-header"><span>대기 내 산소 비중</span><span id="lbl-oxygen">21%</span></div>
+                    <div class="slider-row">
+                        <input type="range" id="p-oxygen" min="0" max="100" value="21" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('대기 내 산소 비중', '유산소 호흡 생명체의 에너지 대사율을 결정하며, 너무 과하면 산화 폭발이 일어납니다.')">?</button>
+                    </div>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-header"><span>표면 수분 함량</span><span id="lbl-water">70%</span></div>
+                    <div class="slider-row">
+                        <input type="range" id="p-water" min="0" max="100" value="70" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('표면 수분 함량', '유기물이 섞이고 세포가 보존될 수 있는 원시 바다의 면적 비율입니다.')">?</button>
+                    </div>
+                </div>
             </div>
 
-            <div class="panel control-container">
-                <h3>물리 및 지질 변수 조절 (ne)</h3>
-                <div class="slider-group">
-                    <div class="slider-label"><span>표면 온도</span><span id="v-temp">15°C</span></div>
-                    <input type="range" id="s-temp" min="-200" max="500" value="15" oninput="simulation.update()">
+            <div class="game-panel planet-zone">
+                <div class="planet-view-box">
+                    <div id="planet-mesh" class="planet-sphere"></div>
                 </div>
-                <div class="slider-group">
-                    <div class="slider-label"><span>온실가스 농도</span><span id="v-green">10%</span></div>
-                    <input type="range" id="s-green" min="0" max="100" value="10" oninput="simulation.update()">
-                </div>
-                <div class="slider-group">
-                    <div class="slider-label"><span>행성 질량비</span><span id="v-mass">1.0 M⊕</span></div>
-                    <input type="range" id="s-mass" min="0.1" max="15" step="0.1" value="1.0" oninput="simulation.update()">
-                </div>
-                <div class="slider-group">
-                    <div class="slider-label"><span>자기장 보호막</span><span id="v-magnetic">50%</span></div>
-                    <input type="range" id="s-magnetic" min="0" max="100" value="50" oninput="simulation.update()">
-                </div>
+                <div id="obs-status">[ 관측 진행 중 ]: 안정한 원시 행성</div>
+            </div>
 
-                <h3>화학 및 진화 생태계 변수</h3>
-                <div class="slider-group">
-                    <div class="slider-label"><span>대기 내 산소 비중</span><span id="v-oxygen">21%</span></div>
-                    <input type="range" id="s-oxygen" min="0" max="100" value="21" oninput="simulation.update()">
-                </div>
-                <div class="slider-group">
-                    <div class="slider-label"><span>표면 수분 함량</span><span id="v-water">70%</span></div>
-                    <input type="range" id="s-water" min="0" max="100" value="70" oninput="simulation.update()">
-                </div>
-                <div class="slider-group">
-                    <div class="slider-label"><span>우주생물학적 특수 기폭제</span></div>
-                    <select id="s-special" class="select-custom" onchange="simulation.update()">
-                        <option value="None">지구형 탄소 유기 분자 체계</option>
-                        <option value="TitanMethane">극저온 액체 메탄 용매 환경</option>
-                        <option value="EuropaSub">얼음층 지표 하부 심해 구조</option>
-                        <option value="Ammonia">고압 액체 암모니아 바다</option>
-                        <option value="Chirality50">50:50 라세미 거울상 분자 수프</option>
-                        <option value="TidalLock">모항성 조석 고정 상태</option>
-                        <option value="Silicon">고온 규소 뼈대 대사 조건</option>
-                        <option value="XNA">인공 변형 유전 핵산(XNA) 매트릭스</option>
-                        <option value="Radiation">고농도 치사 전리 방사선 구역</option>
+            <div class="game-panel">
+                <div class="section-title">연구 분석 힌트 모듈</div>
+                <div class="hint-select-row">
+                    <select id="hint-selector">
+                        <option value="end1">엔딩 1 힌트 보기</option>
+                        <option value="end2">엔딩 2 힌트 보기</option>
+                        <option value="end3">엔딩 3 힌트 보기</option>
+                        <option value="end4">엔딩 4 힌트 보기</option>
                     </select>
+                    <button class="bulb-btn" onclick="viewHint()">💡</button>
+                </div>
+                <div id="hint-display-box" style="font-size:0.9rem; color:#a0aec0; line-height:1.5; background:#060613; padding:12px; border-radius:6px; flex:1;">
+                    힌트 대기 중... 위의 전구 단추를 누르세요.
                 </div>
             </div>
 
-            <div class="panel hint-container">
-                <h3>연구 분석 힌트 모듈</h3>
-                <div class="hint-row">
-                    <select id="hint-selector" class="hint-select"></select>
-                    <button class="btn-hint-trigger" onclick="simulation.getHint()">💡</button>
-                </div>
-                <div id="hint-box" class="hint-display-box">💡 전구 버튼을 누르면 타깃 가이드가 로드됩니다.</div>
-            </div>
         </div>
     </div>
 
     <div id="book-screen" class="screen">
-        <div class="nav-btn btn-back" onclick="navigation.toLobby()">◀</div>
-        <h2 style="margin-bottom:15px; color:var(--accent-color); letter-spacing:3px;">우주 환경 진화 도감</h2>
+        <h2 style="color:var(--accent-color); margin-bottom:20px;">📖 우주 생물학 연구 도감</h2>
+        <div class="book-container">
+            <div class="ending-grid" id="ending-grid-container">
+                </div>
+            <div class="ending-detail-panel" id="book-detail">
+                <p style="color:#718096;">좌측의 해금된 엔딩을 선택하면 상세 정보와 달성 기록이 인쇄됩니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="popup-overlay" class="overlay">
+        <div class="modal-content" style="max-width:400px;">
+            <h3 id="pop-title" style="color:var(--danger-color); margin-bottom:10px;">⚠️ 경고</h3>
+            <p id="pop-msg" style="margin-bottom:20px;">정말 진행하시겠습니까?</p>
+            <div style="display:flex; justify-content:center; gap:15px;">
+                <button class="std-btn" id="pop-yes">확인</button>
+                <button class="std-btn" id="pop-no" style="border-color:#718096; color:#718096;">취소</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // --- 글로벌 상태 관리 엔진 ---
+    let currentScreen = 'lobby';
+    let isTutorialDone = false;
+    
+    // 유저가 도감에 영구 해금한 엔딩 키 목록
+    let savedEndings = [];
+
+    // 엔딩 데이터 정의 구조체
+    const endingRegistry = {
+        end1: {
+            title: "🔥 폭주한 온실효과의 지옥",
+            desc: "대기 중 온실가스가 극도에 달해 행성 전체가 마그마와 불바다로 뒤덮인 지옥 행성입니다.",
+            condStr: "조건: 온실가스 60% 이상 & 표면 온도 400°C 이상",
+            hint: "화학 계열의 '온실가스 농도'를 60% 위로 맹렬히 올리고, '표면 온도'를 400°C 이상으로 과열시키십시오.",
+            style: {
+                background: "radial-gradient(circle at 30% 30%, #ff3300, #ffaa00, #330000)",
+                boxShadow: "inset -20px -20px 50px #000, 0 0 40px rgba(255,51,0,0.8)"
+            }
+        },
+        end2: {
+            title: "❄️ 절대영도의 심해 동결 행성",
+            desc: "온도가 비정상적으로 급감하며 표면 수분이 전부 얼어붙어 모든 생체 대사가 영구 정지된 동토입니다.",
+            condStr: "조건: 표면 온도 -60°C 이하 & 표면 수분 함량 80% 이상",
+            hint: "'표면 온도'를 영하 -60°C 이하로 급랭시키고, '표면 수분 함량'을 80% 이상의 극대 대양 상태로 조정하세요.",
+            style: {
+                background: "radial-gradient(circle at 30% 30%, #a3e2f7, #3182ce, #0f172a)",
+                boxShadow: "inset -20px -20px 50px #000, 0 0 40px rgba(49,130,206,0.7)"
+            }
+        },
+        end3: {
+            title: "🌳 낙원의 요람: 가이아성",
+            desc: "가장 완벽한 황금대 조건이 조화를 이루어, 고도의 지능을 지닌 유기체 문명이 은하계에 탄생했습니다.",
+            condStr: "조건: 온도 15~30°C & 산소 20~30% & 수분 60~80% & 자기장 60% 이상",
+            hint: "지구와 유사한 환경이 답입니다. 온도는 15~30°C, 산소는 21% 내외, 수분은 60~80%, 자기장을 견고히 지키세요.",
+            style: {
+                background: "radial-gradient(circle at 30% 30%, #38a169, #3182ce, #1a202c)",
+                boxShadow: "inset -20px -20px 50px #000, 0 0 40px rgba(56,161,105,0.7)"
+            }
+        },
+        end4: {
+            title: "👾 고농도 치사 전리 방사선 구역",
+            desc: "자기장 보호막이 소멸되어 우주 방사선이 행성을 관통하면서 변이된 기괴한 기계-생명체 제국입니다.",
+            condStr: "조건: 자기장 보호막 5% 이하 & 행성 질량비 80배 이상",
+            hint: "'자기장 보호막' 슬라이더를 바닥(5% 이하)으로 내리고, 중력을 높이기 위해 '행성 질량비'를 80배 이상으로 과부하 하세요.",
+            style: {
+                background: "radial-gradient(circle at 30% 30%, #b7791f, #805ad5, #2d3748)",
+                boxShadow: "inset -20px -20px 50px #000, 0 0 40px rgba(128,90,213,0.7)"
+            }
+        }
+    };
+
+    // --- 네비게이션 제어 코어 ---
+    function changeScreen(screenName) {
+        currentScreen = screenName;
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(`${screenName}-screen`).classList.add('active');
+
+        // 버튼 상호작용 표출 여부
+        const backBtn = document.getElementById('back-btn');
+        const resetBtn = document.getElementById('reset-btn');
+
+        if(screenName === 'lobby' || screenName === 'tutorial') {
+            backBtn.style.display = 'none';
+            resetBtn.style.display = 'none';
+        } else if(screenName === 'game') {
+            backBtn.style.display = 'flex';
+            resetBtn.style.display = 'flex';
+        } else if(screenName === 'book') {
+            backBtn.style.display = 'flex';
+            resetBtn.style.display = 'none';
+        }
+    }
+
+    function pressStart() {
+        if(!isTutorialDone) {
+            changeScreen('tutorial');
+        } else {
+            changeScreen('game');
+        }
+    }
+
+    function exitTutorial() {
+        isTutorialDone = true;
+        changeScreen('game');
+    }
+
+    // --- 인게임 데이터 연산 및 엔딩 감지 엔진 ---
+    function updateValues() {
+        const temp = parseInt(document.getElementById('p-temp').value);
+        const green = parseInt(document.getElementById('p-green').value);
+        const mass = parseInt(document.getElementById('p-mass').value);
+        const mag = parseInt(document.getElementById('p-mag').value);
+        const oxygen = parseInt(document.getElementById('p-oxygen').value);
+        const water = parseInt(document.getElementById('p-water').value);
+
+        // 라벨 실시간 연동
+        document.getElementById('lbl-temp').innerText = temp + "°C";
+        document.getElementById('lbl-green').innerText = green + "%";
+        document.getElementById('lbl-mass').innerText = (mass/10).toFixed(1) + " M⊕";
+        document.getElementById('lbl-mag').innerText = mag + "%";
+        document.getElementById('lbl-oxygen').innerText = oxygen + "%";
+        document.getElementById('lbl-water').innerText = water + "%";
+
+        checkEndingConditions(temp, green, mass, mag, oxygen, water);
+    }
+
+    function checkEndingConditions(temp, green, mass, mag, oxygen, water) {
+        let triggeredKey = null;
+
+        // 엔딩 조건부 대입 
+        if (green >= 60 && temp >= 400) {
+            triggeredKey = 'end1';
+        } else if (temp <= -60 && water >= 80) {
+            triggeredKey = 'end2';
+        } else if (temp >= 15 && temp <= 30 && oxygen >= 20 && oxygen <= 30 && water >= 60 && water <= 80 && mag >= 60) {
+            triggeredKey = 'end3';
+        } else if (mag <= 5 && mass >= 80) {
+            triggeredKey = 'end4';
+        }
+
+        if (triggeredKey) {
+            executeEndingTrigger(triggeredKey);
+        }
+    }
+
+    // 엔딩 연출 및 리셋 연계 시스템
+    function executeEndingTrigger(key) {
+        const data = endingRegistry[key];
         
-        <div id="book-grid" class="book-container"></div>
-        
-        <div class="book-viewer">
-            <div class="viewer-box">
-                <h4 id="view-title">분석 리포트를 선택하세요</h4>
-                <p id="view-desc">상단 도감에서 궁금한 엔딩 카드를 클릭하면 해당 환경의 자세한 스토리 정보가 연동됩니다.</p>
-            </div>
-            <div class="viewer-box">
-                <h4>🔑 데이터 수집 매트릭스 조건 공식</h4>
-                <p id="view-hint">클릭 시 기폭 공식 범위 사양이 활성화됩니다.</p>
-            </div>
-        </div>
-    </div>
+        // 1. 행성 그래픽 및 계측 텍스트 실시간 반영
+        const mesh = document.getElementById('planet-mesh');
+        mesh.style.background = data.style.background;
+        mesh.style.boxShadow = data.style.boxShadow;
+        document.getElementById('obs-status').innerHTML = `⚠️ [관측 완료]: ${data.title}`;
 
-    <div id="reset-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h2>행성 초기화 경고</h2>
-            <p>시뮬레이터 환경을 태초의 원시 상태로 되돌리시겠습니까?</p>
-            <div class="modal-btns">
-                <button class="base-btn" style="border-color:var(--danger-color); color:var(--danger-color);" onclick="simulation.confirmReset()">진행하기</button>
-                <button class="base-btn" onclick="navigation.closeResetModal()">돌아가기</button>
-            </div>
-        </div>
-    </div>
+        // 2. 신규 발견 시 도감 적재
+        if (!savedEndings.includes(key)) {
+            savedEndings.push(key);
+        }
 
-    <div id="ending-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h4 id="end-type" style="font-size:0.8rem; letter-spacing:2px; margin-bottom:5px;">REPORT</h4>
-            <h2 id="end-title">결말 발견</h2>
-            <p id="end-desc">상세 정보</p>
-            <button class="base-btn" onclick="navigation.closeEndingModal()">데이터 세이브</button>
-        </div>
-    </div>
-
-    <div id="true-ending-screen" class="screen">
-        <h1>TRUE ENDING : GAIA NETWORK</h1>
-        <p>축하합니다. 모든 형태의 진화적 실패와 대안 문명 루트를 완벽히 추적했습니다. 우주적 통합 의식이 완성되었습니다.</p>
-        <button class="base-btn" style="margin-top:40px; border-color:#ff00ff; color:#ff00ff;" onclick="location.reload()">시스템 재부팅</button>
-    </div>
-
-    <script>
-        const asciiArts = {
-            default: `
-     .  - ~ ~ ~ -  .
-   /   .          .   \\
-  /  .              .  \\
- |  .                .  |
- |  . 원시 행성 대기 .  |
- |  .   안정화 중..  .  |
-  \\  .              .  /
-   \\   .          .   /
-     \`  - _ _ _ -  '
-            `,
-            hell: `
-          . - ~ ~ ~ - .
-        /   \\ | / | \\   \\
-       /  -==🌋===🌋==-  \\
-      |  |   |   |   |   |
-      |  🔥  🔥  🔥  🔥  |
-      |   \\ / \\ / \\ /     |
-       \\   ======       /
-        \\   / | \\      /
-          \` - _ _ _ - \`
-            `,
-            ice: `
-          . - ~ ~ ~ - .
-        /  * * * \\
-       / * ❄️   ❄️   * \\
-      | * ❄️   🧊   ❄️   * |
-      | * 🧊   ❄️   🧊   * |
-      | * ❄️   🧊   ❄️   * |
-       \\ * ❄️   ❄️   * /
-        \\  * * * /
-          \` - _ _ _ - \`
-            `,
-            earth: `
-          . - ~ ~ ~ - .
-        /   .  🌳  .  🌱 \\
-       /  🌊      🌊      \\
-      | 🌊   🌳      🌊   |
-      |    🌱    🌊   🌳 |
-      | 🌊    🌊   🌱  |
-       \\   🌳      🌳    /
-        \\      🌊       /
-          \` - _ _ _ - \`
-            `,
-            alien: `
-          . - ~ ~ ~ - .
-        /   🧬   🛸   🧬 \\
-       / 🔮      🔮      🔮 \\
-      |   🛸   🧬   🛸   |
-      | 🔮      🔮      🔮  |
-      |   🧬   🛸   🧬   |
-       \\ 🔮      🔮      🔮 /
-        \\      🛸       /
-          \` - _ _ _ - \`
-            `
-        };
-
-        const endingDB = [
-            { id: 1, isSuccess: false, art: "hell", name: "폭주한 온실효과의 지옥", desc: "[금성형] 온실가스 축적으로 바다가 증발하고 지옥처럼 변했습니다.", hint: "온실가스 60% 이상, 온도 400°C 이상" },
-            { id: 2, isSuccess: false, art: "ice", name: "얼어붙은 불모의 땅", desc: "[화성형] 질량이 낮아 중심핵이 식고 영구 동토층이 되었습니다.", hint: "행성 질량 0.5 이하, 온실가스 1% 이하" },
-            { id: 3, isSuccess: false, art: "hell", name: "공유 결합의 파괴", desc: "자기장이 없어 우주 방사선이 모든 세포 유전자를 분해했습니다.", hint: "자기장 10% 이하" },
-            { id: 4, isSuccess: false, art: "hell", name: "단백질 변성 지옥", desc: "고열 조건으로 단백질이 모두 변성되어 생화학 대사가 멈췄습니다.", hint: "온도 100°C 이상" },
-            { id: 5, isSuccess: false, art: "default", name: "제인스 탈출의 비극", desc: "중력이 낮아 생명 활동에 필요한 대기 기체들이 우주로 유실되었습니다.", hint: "행성 질량 0.3 이하" },
-            { id: 6, isSuccess: false, art: "default", name: "가스 행성으로의 폭주", desc: "핵 질량이 너무 커 주변 가스를 폭발적으로 흡수해 가스 행성이 되었습니다.", hint: "행성 질량 10 이상" },
-            { id: 7, isSuccess: false, art: "alien", name: "산소 독성 대멸종", desc: "과도한 산소 농도로 활성산소가 폭발해 초기 미생물들이 전멸했습니다.", hint: "산소 농도 25% 이상" },
-            { id: 8, isSuccess: false, art: "default", name: "CHNOPS 필수 원소 결핍", desc: "지각 활동 부재로 필수 생명 원소 공급이 차단되었습니다.", hint: "수분 85% 이상 단독 조건 충족 시" },
-            { id: 9, isSuccess: false, art: "alien", name: "거울상 미로의 저주", desc: "L/D 아미노산이 반반 섞여 단백질 구조가 조립되지 못합니다.", hint: "기폭제: 50:50 거울상 분자 수프" },
-            { id: 10, isSuccess: false, art: "ice", name: "조석 고정의 비극", desc: "앞면은 불바다, 뒷면은 절대영도가 되어 대기가 뒤편에서 얼어붙었습니다.", hint: "기폭제: 모항성 조석 고정 상태" },
-            { id: 11, isSuccess: false, art: "hell", name: "삼투압 쇼크", desc: "해양의 염분 농도가 폭발하여 세포가 탈수 현상으로 파괴되었습니다.", hint: "수분 5~15%, 온도 70°C 이상" },
-            { id: 12, isSuccess: false, art: "default", name: "절대적 무용매 사막", desc: "액체 용매가 전혀 없어 유기 화학 반응이 일어날 수 없습니다.", hint: "수분 함량 0%" },
-            { id: 13, isSuccess: false, art: "ice", name: "동결된 탄소 순환", desc: "혹한으로 인해 행성 전체의 탄소 순환이 완전히 중단되었습니다.", hint: "온도 -50°C 이하, 온실가스 0%" },
-            { id: 14, isSuccess: false, art: "default", name: "지질학적 사망 행성", desc: "내부 에너지가 완전히 고갈되어 화산 및 판구조 활동이 멈췄습니다.", hint: "행성 질량 0.2 이하, 자기장 0%" },
-            { id: 15, isSuccess: false, art: "hell", name: "항성의 조기 초신성 퇴화", desc: "모항성이 너무 빨리 수명을 다해 행성계 전체가 증발했습니다.", hint: "행성 질량 14 이상, 온도 200°C 이상" },
+        // 3. 엔딩 고지 후 즉시 환경 장치 초기화 (무한 루프 방지 핵심)
+        setTimeout(() => {
+            alert(`🎉 [엔딩 연산 성공]\n\n'${data.title}'을(를) 관측 및 영구 해금했습니다!\n확인을 누르면 환경 조건이 초기화되며 다음 탐색 모드로 전환됩니다.`);
             
-            { id: 16, isSuccess: true, art: "earth", name: "푸른 보석의 기적", desc: "[지구형 표준] 탄소와 물을 기반으로 찬란한 과학 문명이 번창합니다.", hint: "온도 10~25°C, 온실 5~20%, 질량 0.8~1.5, 자기 40%이상, 산소 15~25%, 수분 60~85%" },
-            { id: 17, isSuccess: true, art: "alien", name: "메탄 바다의 개척자", desc: "극저온의 액체 메탄을 용매로 삼는 독창적인 생명 문명입니다.", hint: "기폭제 TitanMethane, 온도 -150°C 이하" },
-            { id: 18, isSuccess: true, art: "ice", name: "얼음 밑의 지성", desc: "두꺼운 얼음 행성 지표면 아래 심해 열수구에서 지성체가 탄생했습니다.", hint: "기폭제 EuropaSub, 수분 50% 이상" },
-            { id: 19, isSuccess: true, art: "alien", name: "암모니아 바다의 현자", desc: "액체 암모니아를 기반으로 독특한 대사 사이클을 정착시켰습니다.", hint: "기폭제 Ammonia, 온도 -50°C ~ 0°C" },
-            { id: 20, isSuccess: true, art: "earth", name: "초지구의 거인들", desc: "높은 중력에 적응하여 단단하고 강력한 생체 구조를 가진 문명입니다.", hint: "행성 질량 3.5 ~ 6.0" },
-            { id: 21, isSuccess: true, art: "alien", name: "영원한 황혼의 생존자", desc: "적색왜성의 강력한 플레어를 형광 보호막으로 막아내며 번창합니다.", hint: "온실가스 90% 이상, 자기장 90% 이상" },
-            { id: 22, isSuccess: true, art: "earth", name: "끝없는 대양의 지배자", desc: "대륙이 없는 수권 행성에서 바이오 유기 공학 문명을 이룩했습니다.", hint: "수분 함량 95% 이상" },
-            { id: 23, isSuccess: true, art: "alien", name: "방랑하는 가이아 문명", desc: "우주를 떠도는 무항성 행성에서 수소 단열층을 통해 문명을 유지합니다.", hint: "온실가스 90% 이상, 자기장 90% 이상 (특수)" },
-            { id: 24, isSuccess: true, art: "hell", name: "규소 기반의 불사조", desc: "탄소가 버틸 수 없는 고온 화산지대에서 규소 골격 생명체가 탄생했습니다.", hint: "기폭제 Silicon, 온도 200°C 이상" },
-            { id: 25, isSuccess: true, art: "earth", name: "에메랄드 매트릭스", desc: "행성 전역의 식물들이 하나의 거대한 신경망 지성으로 연결되었습니다.", hint: "산소 40% ~ 60%, 수분 50% 이상" },
-            { id: 26, isSuccess: true, art: "ice", name: "부동액 세포의 영생종", desc: "글리세롤 부동 대사 세포를 통해 수천 년을 살아가는 종족입니다.", hint: "온도 -40 ~ -10°C, 산소 10% 이하" },
-            { id: 27, isSuccess: true, art: "alien", name: "대안 핵산의 개척자", desc: "인공 유전 핵산(XNA) 매트릭스를 완전히 정착시켜 완벽한 복제를 수행합니다.", hint: "기폭제 XNA" },
-            { id: 28, isSuccess: true, art: "alien", name: "황산 구름의 부력 비행선", desc: "행성 상공 50km의 대기층에서 부력을 이용해 살아가는 지성체입니다.", hint: "온실가스 70% 이상, 산소 30% 이상" },
-            { id: 29, isSuccess: true, art: "alien", name: "극한 환경의 생명 공학자", desc: "치사량의 방사능 속에서도 실시간으로 DNA를 복구하는 종족입니다.", hint: "기폭제 Radiation" }
-        ];
-
-        let gameState = { unlockedEndings: [], isFirstPlay: true, sliders: { temp: 15, green: 10, mass: 1.0, magnetic: 50, oxygen: 21, water: 70, special: "None" } };
-
-        function loadGame() {
-            const saved = localStorage.getItem("BIOC_COSMOS_SAVE_v2");
-            if(saved) gameState = JSON.parse(saved);
-        }
-        function saveGame() {
-            localStorage.setItem("BIOC_COSMOS_SAVE_v2", JSON.stringify(gameState));
-        }
-
-        const navigation = {
-            startPlay() {
-                document.getElementById("lobby-screen").classList.remove("active");
-                if(gameState.isFirstPlay) document.getElementById("tutorial-screen").classList.add("active");
-                else this.openSimulator();
-            },
-            closeTutorial() {
-                gameState.isFirstPlay = false;
-                saveGame();
-                document.getElementById("tutorial-screen").classList.remove("active");
-                this.openSimulator();
-            },
-            openSimulator() {
-                document.getElementById("game-screen").classList.add("active");
-                simulation.loadSliders();
-                simulation.update();
-                simulation.initHintSelector();
-            },
-            toLobby() {
-                simulation.saveSliders();
-                document.getElementById("game-screen").classList.remove("active");
-                document.getElementById("book-screen").classList.remove("active");
-                document.getElementById("lobby-screen").classList.add("active");
-            },
-            openBook() {
-                document.getElementById("lobby-screen").classList.remove("active");
-                document.getElementById("book-screen").classList.add("active");
-                this.renderBookGrid();
-            },
-            renderBookGrid() {
-                const grid = document.getElementById("book-grid");
-                grid.innerHTML = "";
-                endingDB.forEach(end => {
-                    const item = document.createElement("div");
-                    const isUnlocked = gameState.unlockedEndings.includes(end.id);
-                    item.className = `book-item ${isUnlocked ? 'unlocked' : ''}`;
-                    item.innerHTML = isUnlocked ? `<strong>✨ [해금]<br>${end.name}</strong>` : `🔒 No. ${end.id}<br>[미확인]`;
-                    
-                    // 💡 각 카드를 클릭했을 때 하단 뷰어 세부 연동 이벤트 추가
-                    item.addEventListener('click', () => {
-                        document.querySelectorAll('.book-item').forEach(b => b.classList.remove('selected'));
-                        item.classList.add('selected');
-                        
-                        const titleEl = document.getElementById("view-title");
-                        const descEl = document.getElementById("view-desc");
-                        const hintEl = document.getElementById("view-hint");
-
-                        if(isUnlocked) {
-                            titleEl.innerText = `[No.${end.id}] ${end.name}`;
-                            descEl.innerText = end.desc;
-                        } else {
-                            titleEl.innerText = `🔒 No.${end.id} 미확인 환경 분석 데이터`;
-                            descEl.innerText = "아직 시뮬레이션에서 도달하지 못해 세부 스토리가 잠겨있습니다. 아래 조건을 참조하여 변수를 조절해 보세요.";
-                        }
-                        hintEl.innerText = end.hint;
-                    });
-
-                    grid.appendChild(item);
-                });
-            },
-            triggerResetModal() { document.getElementById("reset-modal").classList.add("active"); },
-            closeResetModal() { document.getElementById("reset-modal").classList.remove("active"); },
-            triggerEndingModal(ending) {
-                document.getElementById("end-type").innerText = ending.isSuccess ? "SUCCESS ARCHETYPE" : "DISSOLUTION REPORT";
-                document.getElementById("end-type").style.color = ending.isSuccess ? "#00ffff" : "#ff0055";
-                document.getElementById("end-title").innerText = ending.name;
-                document.getElementById("end-desc").innerText = ending.desc;
-                document.getElementById("ending-modal").classList.add("active");
-                
-                if(!gameState.unlockedEndings.includes(ending.id)) {
-                    gameState.unlockedEndings.push(ending.id);
-                    saveGame();
-                }
-            },
-            closeEndingModal() {
-                document.getElementById("ending-modal").classList.remove("active");
-                if(gameState.unlockedEndings.length >= 29) {
-                    document.getElementById("game-screen").classList.remove("active");
-                    document.getElementById("true-ending-screen").classList.add("active");
-                }
+            // 올컬렉션 유무 체크 후 트루엔딩 분기점 가동
+            if (savedEndings.length === Object.keys(endingRegistry).length) {
+                triggerTrueEnding();
+            } else {
+                silentResetEnv();
             }
-        };
+        }, 600);
+    }
 
-        const simulation = {
-            saveSliders() {
-                if(!document.getElementById("s-temp")) return;
-                gameState.sliders.temp = parseInt(document.getElementById("s-temp").value);
-                gameState.sliders.green = parseInt(document.getElementById("s-green").value);
-                gameState.sliders.mass = parseFloat(document.getElementById("s-mass").value);
-                gameState.sliders.magnetic = parseInt(document.getElementById("s-magnetic").value);
-                gameState.sliders.oxygen = parseInt(document.getElementById("s-oxygen").value);
-                gameState.sliders.water = parseInt(document.getElementById("s-water").value);
-                gameState.sliders.special = document.getElementById("s-special").value;
-                saveGame();
-            },
-            loadSliders() {
-                document.getElementById("s-temp").value = gameState.sliders.temp;
-                document.getElementById("s-green").value = gameState.sliders.green;
-                document.getElementById("s-mass").value = gameState.sliders.mass;
-                document.getElementById("s-magnetic").value = gameState.sliders.magnetic;
-                document.getElementById("s-oxygen").value = gameState.sliders.oxygen;
-                document.getElementById("s-water").value = gameState.sliders.water;
-                document.getElementById("s-special").value = gameState.sliders.special;
-            },
-            confirmReset() {
-                gameState.sliders = { temp: 15, green: 10, mass: 1.0, magnetic: 50, oxygen: 21, water: 70, special: "None" };
-                gameState.unlockedEndings = [];
-                saveGame();
-                this.loadSliders();
-                navigation.closeResetModal();
-                this.update();
-            },
-            initHintSelector() {
-                const selector = document.getElementById("hint-selector");
-                selector.innerHTML = "";
-                endingDB.forEach(e => {
-                    const opt = document.createElement("option");
-                    opt.value = e.id;
-                    opt.innerText = `${e.isSuccess ? '성공' : '실패'}: ${e.name}`;
-                    selector.appendChild(opt);
-                });
-            },
-            getHint() {
-                const id = parseInt(document.getElementById("hint-selector").value);
-                const ending = endingDB.find(e => e.id === id);
-                if(ending) document.getElementById("hint-box").innerHTML = `<strong>🎯 조건 범위 가이드:</strong><br>${ending.hint}`;
-            },
-            update() {
-                const temp = parseInt(document.getElementById("s-temp").value);
-                const green = parseInt(document.getElementById("s-green").value);
-                const mass = parseFloat(document.getElementById("s-mass").value);
-                const magnetic = parseInt(document.getElementById("s-magnetic").value);
-                const oxygen = parseInt(document.getElementById("s-oxygen").value);
-                const water = parseInt(document.getElementById("s-water").value);
-                const special = document.getElementById("s-special").value;
+    // 트루 엔딩 연출
+    function triggerTrueEnding() {
+        alert("✨✨ [TRUE ENDING: 생명의 마스터] ✨✨\n\n모든 변수의 특이점을 관측하여 우주의 기원을 파헤쳤습니다! 은하 연대기 데이터가 완벽하게 동기화되었습니다. 시뮬레이션을 마칩니다.");
+        savedEndings = []; // 도감 리셋 후 초기 로비행
+        silentResetEnv();
+        changeScreen('lobby');
+    }
 
-                document.getElementById("v-temp").innerText = temp + "°C";
-                document.getElementById("v-green").innerText = green + "%";
-                document.getElementById("v-mass").innerText = mass.toFixed(1) + " M⊕";
-                document.getElementById("v-magnetic").innerText = magnetic + "%";
-                document.getElementById("v-oxygen").innerText = oxygen + "%";
-                document.getElementById("v-water").innerText = water + "%";
+    // 조건값 컴팩트 리셋 (도감 내역은 보존)
+    function silentResetEnv() {
+        document.getElementById('p-temp').value = 15;
+        document.getElementById('p-green').value = 10;
+        document.getElementById('p-mass').value = 10;
+        document.getElementById('p-mag').value = 50;
+        document.getElementById('p-oxygen').value = 21;
+        document.getElementById('p-water').value = 70;
+        
+        // 기본 기본 원시 행성 디자인 백업
+        const mesh = document.getElementById('planet-mesh');
+        mesh.style.background = "radial-gradient(circle at 30% 30%, #4a5568, #2d3748, #1a202c)";
+        mesh.style.boxShadow = "inset -20px -20px 50px #000, 0 0 20px rgba(255,255,255,0.1)";
+        document.getElementById('obs-status').innerText = "[ 관측 진행 중 ]: 안정한 원시 행성";
+        updateValues();
+    }
 
-                this.evaluateRules({temp, green, mass, magnetic, oxygen, water, special});
-            },
-            evaluateRules(s) {
-                let targetEnding = null;
+    // --- 힌트 디스플레이어 ---
+    function viewHint() {
+        const targetKey = document.getElementById('hint-selector').value;
+        const info = endingRegistry[targetKey];
+        document.getElementById('hint-display-box').innerHTML = `<strong>💡 [분석 가이드]</strong><br><br>${info.hint}`;
+    }
 
-                if (s.special === "Chirality50") targetEnding = 9;
-                else if (s.special === "TidalLock") targetEnding = 10;
-                else if (s.special === "TitanMethane" && s.temp <= -150) targetEnding = 17;
-                else if (s.special === "EuropaSub" && s.water >= 50) targetEnding = 18;
-                else if (s.special === "Ammonia" && s.temp >= -50 && s.temp <= 0) targetEnding = 19;
-                else if (s.special === "Silicon" && s.temp >= 200) targetEnding = 24;
-                else if (s.special === "XNA") targetEnding = 27;
-                else if (s.special === "Radiation") targetEnding = 29;
-                
-                if (!targetEnding) {
-                    if (s.green >= 60 && s.temp >= 400) targetEnding = 1;
-                    else if (s.mass <= 0.5 && s.green <= 1) targetEnding = 2;
-                    else if (s.magnetic <= 10) targetEnding = 3;
-                    else if (s.temp >= 100) targetEnding = 4;
-                    else if (s.mass <= 0.3) targetEnding = 5;
-                    else if (s.mass >= 10) targetEnding = 6;
-                    else if (s.oxygen >= 25) targetEnding = 7;
-                    else if (s.water >= 95) targetEnding = 22;
-                    else if (s.water <= 15 && s.water >= 5 && s.temp >= 70) targetEnding = 11;
-                    else if (s.water === 0) targetEnding = 12;
-                    else if (s.temp <= -50 && s.green === 0) targetEnding = 13;
-                    else if (s.mass <= 0.2 && s.magnetic === 0) targetEnding = 14;
-                    else if (s.mass >= 14 && s.temp >= 200) targetEnding = 15;
-                    else if (s.water >= 85) targetEnding = 8;
-                    else if (s.mass >= 3.5 && s.mass <= 6.0 && s.special === "None") targetEnding = 20;
-                    else if (s.green >= 90 && s.magnetic >= 90) targetEnding = 23;
-                    else if (s.oxygen >= 40 && s.oxygen <= 60 && s.water >= 50) targetEnding = 25;
-                    else if (s.temp >= -40 && s.temp <= -10 && s.oxygen <= 10) targetEnding = 26;
-                }
+    function checkParamInfo(title, msg) {
+        alert(`[변수 분석 툴팁 - ${title}]\n\n${msg}`);
+    }
 
-                const asciiEl = document.getElementById("planet-ascii");
-                const textEl = document.getElementById("planet-status-text");
+    // --- 상단 네비게이션 트리거 및 커스텀 팝업 프로토콜 ---
+    function openModalPopup(title, msg, onYes) {
+        const overlay = document.getElementById('popup-overlay');
+        document.getElementById('pop-title').innerText = title;
+        document.getElementById('pop-msg').innerText = msg;
+        overlay.style.display = 'flex';
+        
+        document.getElementById('pop-yes').onclick = () => { overlay.style.display = 'none'; onYes(); };
+        document.getElementById('pop-no').onclick = () => { overlay.style.display = 'none'; };
+    }
 
-                if(targetEnding) {
-                    const ending = endingDB.find(e => e.id === targetEnding);
-                    asciiEl.innerText = asciiArts[ending.art] || asciiArts.default;
-                    textEl.innerText = `● 분석 완료 : ${ending.name}`;
-                    textEl.style.color = ending.isSuccess ? "var(--success-color)" : "var(--danger-color)";
-                    
-                    // 디바운스 팝업 트리거
-                    setTimeout(() => {
-                        navigation.triggerEndingModal(ending);
-                    }, 600);
+    function requestGoLobby() {
+        if(currentScreen === 'game') {
+            openModalPopup("🛸 로비 이동", "메인 화면으로 복귀하시겠습니까? (기존 상태는 보존되며 재입장 시 이어하기가 가능합니다.)", () => {
+                changeScreen('lobby');
+            });
+        } else {
+            changeScreen('lobby');
+        }
+    }
+
+    function requestReset() {
+        openModalPopup("⚠️ 경고: 수치 초기화", "정말 행성의 모든 물리적 연산 조건을 초기 단계로 포맷하시겠습니까? (도감 해금 내역은 영구 유지됩니다.)", () => {
+            silentResetEnv();
+        });
+    }
+
+    // --- 엔딩 북 UI 랜더링 머신 ---
+    function openEndingBook() {
+        changeScreen('book');
+        const grid = document.getElementById('ending-grid-container');
+        grid.innerHTML = "";
+
+        Object.keys(endingRegistry).forEach((key, idx) => {
+            const data = endingRegistry[key];
+            const isUnlocked = savedEndings.includes(key);
+            
+            const slot = document.createElement('div');
+            slot.className = `ending-slot ${isUnlocked ? 'unlocked' : ''}`;
+            slot.innerText = isUnlocked ? `🔓 엔딩 ${idx+1}` : `🔒 미발견 엔딩 ${idx+1}`;
+            
+            slot.onclick = () => {
+                const detailBox = document.getElementById('book-detail');
+                if (isUnlocked) {
+                    detailBox.innerHTML = `
+                        <h3 style="color:var(--accent-color); margin-bottom:15px;">${data.title}</h3>
+                        <p style="font-size:0.95rem; line-height:1.6; color:#e2e8f0; margin-bottom:15px;">${data.desc}</p>
+                        <div style="background:#060613; padding:10px; border-radius:4px; font-size:0.85rem; color:#4fd1c5; font-family:monospace;">${data.condStr}</div>
+                    `;
                 } else {
-                    asciiEl.innerText = asciiArts.default;
-                    textEl.innerText = "계측 중... (원시 유기 서스펜션)";
-                    textEl.style.color = "#88a";
+                    detailBox.innerHTML = `
+                        <h3 style="color:#718096; margin-bottom:15px;">🔒 미지의 기록</h3>
+                        <p style="color:#4a5568;">시뮬레이터를 통해 행성에 충격을 주고 특이 조건을 조합하여 이 데이터를 연독하십시오.</p>
+                    `;
                 }
-            }
-        };
+            };
+            grid.appendChild(slot);
+        });
+    }
 
-        // 초기 바인딩 로드 실행
-        window.onload = () => {
-            loadGame();
-        };
-    </script>
+    // 어플리케이션 구동 준비
+    window.onload = () => {
+        updateValues();
+    };
+</script>
+
 </body>
 </html>
