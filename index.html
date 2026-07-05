@@ -6,11 +6,12 @@
     <title>Bio Cosmos - 드레이크 방정식 시뮬레이터</title>
     <style>
         :root {
-            --bg-color: #060613;
-            --panel-color: #0f0f2d;
+            --bg-color: #050510;
+            --panel-color: #0b0b24;
             --accent-color: #00ffff;
             --danger-color: #ff0055;
             --text-color: #ffffff;
+            --muted-color: #718096;
         }
 
         * {
@@ -31,7 +32,7 @@
             overflow: hidden;
         }
 
-        /* 화면 세션 관리 */
+        /* 화면 세션 구조 */
         .screen {
             display: none;
             width: 100vw;
@@ -48,23 +49,24 @@
             align-items: center;
         }
 
-        /* 1. 로비 스크린 (마름모 버튼) */
+        /* 1. 로비 스크린 (마름모 버튼 세팅) */
         #lobby-screen h1 {
-            font-size: 3rem;
+            font-size: 3.5rem;
             color: var(--accent-color);
-            text-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
-            margin-bottom: 80px;
+            text-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+            margin-bottom: 90px;
+            letter-spacing: 3px;
         }
 
         .menu-container {
             display: flex;
-            gap: 60px;
+            gap: 70px;
         }
 
         .rhombus-btn {
-            width: 140px;
-            height: 140px;
-            background: rgba(15, 15, 45, 0.8);
+            width: 150px;
+            height: 150px;
+            background: rgba(11, 11, 36, 0.9);
             border: 2px solid var(--accent-color);
             transform: rotate(45deg);
             cursor: pointer;
@@ -77,27 +79,28 @@
 
         .rhombus-btn:hover {
             background: var(--accent-color);
-            box-shadow: 0 0 25px var(--accent-color);
+            box-shadow: 0 0 30px var(--accent-color);
         }
 
         .rhombus-btn span {
             transform: rotate(-45deg);
             color: #fff;
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             text-align: center;
+            line-height: 1.3;
         }
 
         .rhombus-btn:hover span {
             color: #000;
         }
 
-        /* 상단 네비게이션 트리거 (되돌아가기 / 리셋) */
+        /* 네비게이션 제어 축 트리거 */
         .nav-btn {
             position: absolute;
-            top: 20px;
-            width: 40px;
-            height: 40px;
+            top: 25px;
+            width: 44px;
+            height: 44px;
             background: var(--panel-color);
             border: 1px solid var(--accent-color);
             color: var(--accent-color);
@@ -105,114 +108,119 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            border-radius: 4px;
-            font-size: 1.2rem;
-            z-index: 10;
+            border-radius: 6px;
+            font-size: 1.3rem;
+            z-index: 50;
         }
         .nav-btn:hover { background: var(--accent-color); color: #000; }
-        #back-btn { left: 20px; }
-        #reset-btn { right: 20px; }
+        #back-btn { left: 25px; }
+        #reset-btn { right: 25px; }
 
-        /* 2. 튜토리얼 스크린 */
+        /* 2. 팝업 / 모달 본체 */
         .modal-content {
             background: var(--panel-color);
             border: 2px solid var(--accent-color);
-            padding: 30px;
-            border-radius: 12px;
-            max-width: 500px;
+            padding: 35px;
+            border-radius: 14px;
+            max-width: 520px;
             width: 90%;
             text-align: center;
-            box-shadow: 0 0 30px rgba(0,255,255,0.3);
+            box-shadow: 0 0 35px rgba(0,255,255,0.4);
         }
 
-        .modal-content h2 { margin-bottom: 15px; color: var(--accent-color); }
-        .modal-content p { font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px; color: #ccc; }
+        .modal-content h2 { margin-bottom: 18px; color: var(--accent-color); }
+        .modal-content p { font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px; color: #cbd5e0; }
+        
         .std-btn {
             background: transparent;
             border: 1px solid var(--accent-color);
             color: var(--accent-color);
-            padding: 10px 25px;
+            padding: 10px 28px;
             cursor: pointer;
             font-weight: bold;
-            border-radius: 4px;
+            border-radius: 5px;
+            transition: 0.2s;
         }
         .std-btn:hover { background: var(--accent-color); color: #000; }
 
-        /* 3. 메인 인게임 시뮬레이터 인터페이스 */
+        /* 3. 인게임 배치 레이아웃 */
         .game-layout {
             display: grid;
-            grid-template-columns: 1fr 1.2fr 1fr;
-            width: 95vw;
-            height: 85vh;
+            grid-template-columns: 1fr 1.1fr 1fr;
+            width: 96vw;
+            height: 86vh;
             gap: 20px;
-            margin-top: 40px;
+            margin-top: 50px;
         }
 
         .game-panel {
-            background: rgba(15, 15, 45, 0.6);
-            border: 1px solid rgba(0, 255, 255, 0.2);
-            border-radius: 8px;
-            padding: 20px;
+            background: rgba(11, 11, 36, 0.75);
+            border: 1px solid rgba(0, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 18px;
             display: flex;
             flex-direction: column;
+            overflow-y: auto;
         }
 
-        /* 중앙 행성 구역 및 그래픽 고도화 */
+        /* 행성 메인 입체 연출 */
         .planet-zone {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            position: relative;
         }
 
         .planet-view-box {
-            width: 220px;
-            height: 220px;
+            width: 240px;
+            height: 240px;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .planet-sphere {
-            width: 160px;
-            height: 160px;
+            width: 170px;
+            height: 170px;
             border-radius: 50%;
             background: radial-gradient(circle at 30% 30%, #4a5568, #2d3748, #1a202c);
-            box-shadow: inset -20px -20px 50px #000, 0 0 20px rgba(255,255,255,0.1);
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: inset -20px -20px 60px #000, 0 0 25px rgba(255,255,255,0.08);
+            transition: all 0.7s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         #obs-status {
             font-weight: bold;
             color: var(--accent-color);
-            text-shadow: 0 0 10px rgba(0,255,255,0.4);
+            text-shadow: 0 0 12px rgba(0,255,255,0.4);
             text-align: center;
+            font-size: 1.05rem;
         }
 
-        /* 변수 조절 슬라이더 및 설명 버튼 */
-        .section-title { font-size: 1rem; color: var(--accent-color); margin: 15px 0 10px 0; border-left: 3px solid var(--accent-color); padding-left: 8px; }
-        .control-item { margin-bottom: 15px; }
-        .control-header { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px; color: #a0aec0; }
+        /* 인풋 제어 장치 및 설명 확인 팝업 연동 */
+        .section-title { font-size: 0.95rem; color: var(--accent-color); margin: 15px 0 10px 0; border-left: 3px solid var(--accent-color); padding-left: 8px; font-weight: bold; }
+        .control-item { margin-bottom: 12px; }
+        .control-header { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; color: #a0aec0; }
         .slider-row { display: flex; align-items: center; gap: 8px; }
-        input[type="range"] { flex: 1; accent-color: var(--accent-color); }
-        .info-trigger { background: #1a1a3a; border: 1px solid #3d3d7d; color: #8f8fff; width: 22px; height: 22px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
+        input[type="range"] { flex: 1; accent-color: var(--accent-color); cursor: pointer; }
+        .info-trigger { background: #18183f; border: 1px solid #3b3b7a; color: #8a8aff; width: 22px; height: 22px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
 
         /* 연구 분석 힌트 모듈 */
-        .hint-select-row { display: flex; gap: 5px; margin-bottom: 15px; }
-        select { flex: 1; background: #060613; border: 1px solid rgba(0,255,255,0.3); color: white; padding: 8px; border-radius: 4px; }
-        .bulb-btn { background: #1a1a3a; border: 1px solid var(--accent-color); color: var(--accent-color); width: 38px; height: 38px; border-radius: 4px; cursor: pointer; font-size: 1.1rem; }
+        .hint-select-row { display: flex; gap: 6px; margin-bottom: 15px; }
+        select { flex: 1; background: #050510; border: 1px solid rgba(0,255,255,0.25); color: white; padding: 8px; border-radius: 5px; font-size: 0.85rem; }
+        .bulb-btn { background: #161644; border: 1px solid var(--accent-color); color: var(--accent-color); width: 38px; height: 38px; border-radius: 5px; cursor: pointer; font-size: 1.1rem; transition: 0.2s; }
+        .bulb-btn:hover { background: var(--accent-color); color: #000; }
 
-        /* 4. 엔딩북(도감) 스타일 */
-        .book-container { width: 85vw; height: 75vh; display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
-        .ending-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; overflow-y: auto; padding-right: 5px; }
-        .ending-slot { background: #131338; border: 1px solid #2d2d5e; padding: 15px; border-radius: 6px; cursor: pointer; text-align: center; color: #718096; transition: 0.2s; }
-        .ending-slot.unlocked { border-color: var(--accent-color); color: #fff; background: rgba(0,255,255,0.05); font-weight: bold; }
-        .ending-detail-panel { background: rgba(15,15,45,0.8); border: 1px solid rgba(0,255,255,0.3); border-radius: 8px; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        /* 4. 엔딩북(도감) 시스템 레이아웃 */
+        .book-container { width: 90vw; height: 78h; display: grid; grid-template-columns: 1.2fr 1fr; gap: 25px; margin-top: 40px; }
+        .ending-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; overflow-y: auto; padding-right: 5px; height: 68vh; }
+        .ending-slot { background: #0e0e30; border: 1px solid #232352; padding: 12px; border-radius: 6px; cursor: pointer; text-align: left; font-size: 0.85rem; color: var(--muted-color); transition: 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ending-slot.unlocked { border-color: var(--accent-color); color: #fff; background: rgba(0,255,255,0.04); font-weight: bold; }
+        .ending-slot.unlocked.true-end-slot { border-color: #ff00ff; color: #ffbcff; background: rgba(255, 0, 255, 0.1); }
+        .ending-detail-panel { background: rgba(11,11,36,0.9); border: 1px solid rgba(0,255,255,0.25); border-radius: 10px; padding: 25px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 68vh; }
 
-        /* 팝업 경고창 */
-        .overlay { display: none; position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.75); justify-content: center; align-items: center; z-index: 100; }
+        /* 공통 오버레이 백드롭 */
+        .overlay { display: none; position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 100; }
     </style>
 </head>
 <body>
@@ -234,13 +242,14 @@
 
     <div id="tutorial-screen" class="screen">
         <div class="modal-content">
-            <h2>🛸 시뮬레이션 가이드</h2>
+            <h2>🛸 시뮬레이션 환경 제어 가이드</h2>
             <p>
-                '바이오 코스모스' 연구소에 오신 것을 환영합니다.<br>
-                당신은 행성의 물리, 지질, 화학 변수를 조절하여 지적 생명체가 탄생할 수 있는 최적의 환경 혹은 기괴한 외계 환경 엔딩을 개척해야 합니다.<br>
-                전구 모양의 힌트 모듈을 활용해 실마리를 얻고, 모든 엔딩을 해금하여 궁극의 'True 엔딩'을 달성해 보세요!
+                '바이오 코스모스' 연구 제어반에 오신 것을 환영합니다.<br>
+                화면에 배치된 거거리, 질량, 기체 조성 등 다양한 지질학적 변수들을 연동 조작하세요.<br>
+                우측의 💡전구 모듈을 통해 단서를 분석해 29종의 특이성 엔딩을 정복하면,<br>
+                마지막 30번째 연대기인 <strong>'가이아 네트워크(True Ending)'</strong>의 봉인이 해제됩니다!
             </p>
-            <button class="std-btn" onclick="exitTutorial()">시뮬레이터 접속</button>
+            <button class="std-btn" onclick="exitTutorial()">방정식 시뮬레이터 가동</button>
         </div>
     </div>
 
@@ -248,55 +257,151 @@
         <div class="game-layout">
             
             <div class="game-panel">
-                <div class="section-title">물리 및 지질 변수 조절 (ne)</div>
+                <div class="section-title">궤도 및 거시 물리 변수</div>
                 
+                <div class="control-item">
+                    <div class="control-header"><span>항성 거리 (AU)</span><span id="lbl-dist">1.00 AU</span></div>
+                    <div class="slider-row">
+                        <input type="range" id="p-dist" min="1" max="500" value="100" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('항성 거리', '모항성과 중심 행성 간의 궤도 반경입니다. 거리에 따라 도달하는 광자 에너지가 결정됩니다.')">?</button>
+                    </div>
+                </div>
+
                 <div class="control-item">
                     <div class="control-header"><span>표면 온도</span><span id="lbl-temp">15°C</span></div>
                     <div class="slider-row">
-                        <input type="range" id="p-temp" min="-100" max="500" value="15" oninput="updateValues()">
-                        <button class="info-trigger" onclick="checkParamInfo('표면 온도', '온도는 액체 상태의 물이 존재할 수 있는 구역을 정의하며 생명 진화 속도에 핵심 영향을 줍니다.')">?</button>
+                        <input type="range" id="p-temp" min="-200" max="600" value="15" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('표면 온도', '행성 표면의 열역학적 평균 지표 온도입니다.')">?</button>
                     </div>
                 </div>
 
                 <div class="control-item">
-                    <div class="control-header"><span>온실가스 농도</span><span id="lbl-green">10%</span></div>
+                    <div class="control-header"><span>행성 반지름 및 크기</span><span id="lbl-radius">1.0 R⊕</span></div>
+                    <div class="slider-row">
+                        <input type="range" id="p-radius" min="5" max="300" value="10" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('행성 반지름', '지구 기준 대조 반지름입니다. 중력 및 대기 탈출 속도에 기여합니다.')">?</button>
+                    </div>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-header"><span>초기 암석 핵 질량</span><span id="lbl-mass">1.0 M⊕</span></div>
+                    <div class="slider-row">
+                        <input type="range" id="p-mass" min="1" max="200" value="10" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('초기 암석 핵 질량', '가스를 흡수하기 전 행성이 보유한 암석 중핵의 중량입니다.')">?</button>
+                    </div>
+                </div>
+
+                <div class="section-title">지질 및 대기 조성 물질 제어</div>
+
+                <div class="control-item">
+                    <div class="control-header"><span>온실가스 (CO2/CH4) 농도</span><span id="lbl-green">10%</span></div>
                     <div class="slider-row">
                         <input type="range" id="p-green" min="0" max="100" value="10" oninput="updateValues()">
-                        <button class="info-trigger" onclick="checkParamInfo('온실가스 농도', '대기 중 온실가스가 많아지면 열이 갇혀 폭주하는 온실효과 지옥이 생성될 수 있습니다.')">?</button>
+                        <button class="info-trigger" onclick="checkParamInfo('온실가스 농도', '이산화탄소와 메탄의 복합 대기 밀도입니다.')">?</button>
                     </div>
                 </div>
 
                 <div class="control-item">
-                    <div class="control-header"><span>행성 질량비</span><span id="lbl-mass">1.0 M⊕</span></div>
+                    <div class="control-header"><span>지각 내부 열원 (핵류 대류)</span><span id="lbl-core">50%</span></div>
                     <div class="slider-row">
-                        <input type="range" id="p-mass" min="1" max="100" value="10" oninput="updateValues()">
-                        <button class="info-trigger" onclick="checkParamInfo('행성 질량비', '질량이 클수록 대기를 무겁게 붙잡아 강력한 중력장과 대기압을 형성합니다.')">?</button>
+                        <input type="range" id="p-core" min="0" max="100" value="50" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('지각 내부 열원', '다이너모 효과를 유도하는 핵의 대류 및 회전 속도입니다.')">?</button>
                     </div>
                 </div>
 
                 <div class="control-item">
-                    <div class="control-header"><span>자기장 보호막</span><span id="lbl-mag">50%</span></div>
+                    <div class="control-header"><span>우주 방사선 노출도</span><span id="lbl-rad">10%</span></div>
                     <div class="slider-row">
-                        <input type="range" id="p-mag" min="0" max="100" value="50" oninput="updateValues()">
-                        <button class="info-trigger" onclick="checkParamInfo('자기장 보호막', '우주로부터 불어오는 치명적인 전리 방사선과 태양풍을 차단해 주는 방어선입니다.')">?</button>
+                        <input type="range" id="p-rad" min="0" max="100" value="10" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('우주 방사선 노출도', '외부 성간 우주선 및 태양풍의 가혹한 전리 방사 강도입니다.')">?</button>
                     </div>
                 </div>
 
-                <div class="section-title">화학 및 진화 생태계 변수</div>
-                
                 <div class="control-item">
-                    <div class="control-header"><span>대기 내 산소 비중</span><span id="lbl-oxygen">21%</span></div>
+                    <div class="control-header"><span>환경 산성도 (pH)</span><span id="lbl-ph">7.0 pH</span></div>
                     <div class="slider-row">
-                        <input type="range" id="p-oxygen" min="0" max="100" value="21" oninput="updateValues()">
-                        <button class="info-trigger" onclick="checkParamInfo('대기 내 산소 비중', '유산소 호흡 생명체의 에너지 대사율을 결정하며, 너무 과하면 산화 폭발이 일어납니다.')">?</button>
+                        <input type="range" id="p-ph" min="0" max="140" value="70" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('환경 산성도', '수계 환경 내의 이온 농도 지수입니다.')">?</button>
                     </div>
                 </div>
 
                 <div class="control-item">
-                    <div class="control-header"><span>표면 수분 함량</span><span id="lbl-water">70%</span></div>
+                    <div class="control-header"><span>대기압 (atm)</span><span id="lbl-atm">1.00 atm</span></div>
+                    <div class="slider-row">
+                        <input type="range" id="p-atm" min="0" max="1000" value="100" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('대기압', '행성 가스가 지표를 누르는 압력의 절대 기준치입니다.')">?</button>
+                    </div>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-header"><span>산소(O2) 농도 비중</span><span id="lbl-o2">21%</span></div>
+                    <div class="slider-row">
+                        <input type="range" id="p-o2" min="0" max="100" value="21" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('산소 농도 비중', '대기 중 자유 산소 분자가 차지하는 백분율입니다.')">?</button>
+                    </div>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-header"><span>판구조 운동 빈도</span><span id="lbl-tect">50%</span></div>
+                    <div class="slider-row">
+                        <input type="range" id="p-tect" min="0" max="100" value="50" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('판구조 운동', '대륙판과 해양판의 섭입 및 순환 빈도 활성도입니다.')">?</button>
+                    </div>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-header"><span>카이랄성 편향성</span><span id="lbl-chiral">50%</span></div>
+                    <div class="slider-row">
+                        <input type="range" id="p-chiral" min="0" max="100" value="50" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('카이랄성 편향성', '유기 아미노산 및 당류의 광학 이성질체 비대칭도 균형입니다. (50%는 혼합물)')">?</button>
+                    </div>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-header"><span>공전/자전 동기화율</span><span id="lbl-sync">0%</span></div>
+                    <div class="slider-row">
+                        <input type="range" id="p-sync" min="0" max="100" value="0" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('공전/자전 동기화율', '항성 중력에 묶여 행성의 앞뒷면이 고정되는 비율입니다.')">?</button>
+                    </div>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-header"><span>해수 염도 및 증발률</span><span id="lbl-salt">3%</span></div>
+                    <div class="slider-row">
+                        <input type="range" id="p-salt" min="0" max="100" value="3" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('해수 염도', '액체 용매 내에 녹아 있는 무기 염화물 용질의 백분율 밀도입니다.')">?</button>
+                    </div>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-header"><span>행성 총 수분량</span><span id="lbl-water">70%</span></div>
                     <div class="slider-row">
                         <input type="range" id="p-water" min="0" max="100" value="70" oninput="updateValues()">
-                        <button class="info-trigger" onclick="checkParamInfo('표면 수분 함량', '유기물이 섞이고 세포가 보존될 수 있는 원시 바다의 면적 비율입니다.')">?</button>
+                        <button class="info-trigger" onclick="checkParamInfo('행성 총 수분량', '행성 외각 시스템이 보유한 H2O 절대 지표량입니다.')">?</button>
+                    </div>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-header"><span>대기 에어로졸 반사율</span><span id="lbl-albedo">30%</span></div>
+                    <div class="slider-row">
+                        <input type="range" id="p-albedo" min="0" max="100" value="30" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('대기 에어로졸 반사율', '구름 및 화산재 에어로졸층이 빛을 반사해 밀어내는 지수입니다.')">?</button>
+                    </div>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-header"><span>방사성 동위원소 비중</span><span id="lbl-iso">50%</span></div>
+                    <div class="slider-row">
+                        <input type="range" id="p-iso" min="0" max="100" value="50" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('방사성 동위원소 비중', '맨틀 내에 잠재되어 붕괴열을 만드는 우라늄, 칼륨 핵종 함량입니다.')">?</button>
+                    </div>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-header"><span>모항성 질량 체급</span><span id="lbl-star">1.0 M☉</span></div>
+                    <div class="slider-row">
+                        <input type="range" id="p-star" min="1" max="50" value="10" oninput="updateValues()">
+                        <button class="info-trigger" onclick="checkParamInfo('모항성 질량 체급', '중심 항성의 절대 체급 질량입니다. 수명과 직접 직결됩니다.')">?</button>
                     </div>
                 </div>
             </div>
@@ -305,22 +410,18 @@
                 <div class="planet-view-box">
                     <div id="planet-mesh" class="planet-sphere"></div>
                 </div>
-                <div id="obs-status">[ 관측 진행 중 ]: 안정한 원시 행성</div>
+                <div id="obs-status">[ 시스템 가동 중 ]: 안정한 상태</div>
             </div>
 
             <div class="game-panel">
                 <div class="section-title">연구 분석 힌트 모듈</div>
                 <div class="hint-select-row">
                     <select id="hint-selector">
-                        <option value="end1">엔딩 1 힌트 보기</option>
-                        <option value="end2">엔딩 2 힌트 보기</option>
-                        <option value="end3">엔딩 3 힌트 보기</option>
-                        <option value="end4">엔딩 4 힌트 보기</option>
-                    </select>
+                        </select>
                     <button class="bulb-btn" onclick="viewHint()">💡</button>
                 </div>
-                <div id="hint-display-box" style="font-size:0.9rem; color:#a0aec0; line-height:1.5; background:#060613; padding:12px; border-radius:6px; flex:1;">
-                    힌트 대기 중... 위의 전구 단추를 누르세요.
+                <div id="hint-display-box" style="font-size:0.88rem; color:#a0aec0; line-height:1.6; background:#050510; padding:15px; border-radius:6px; flex:1; overflow-y:auto;">
+                    원하는 도감 엔딩 번호를 고른 뒤 전구 단추를 누르면 연구 힌트가 출력됩니다.
                 </div>
             </div>
 
@@ -328,76 +429,254 @@
     </div>
 
     <div id="book-screen" class="screen">
-        <h2 style="color:var(--accent-color); margin-bottom:20px;">📖 우주 생물학 연구 도감</h2>
+        <h2 style="color:var(--accent-color); margin-bottom:15px; font-size:1.8rem; letter-spacing:1px;">📖 우주 생물학 연대기 도감</h2>
         <div class="book-container">
             <div class="ending-grid" id="ending-grid-container">
                 </div>
             <div class="ending-detail-panel" id="book-detail">
-                <p style="color:#718096;">좌측의 해금된 엔딩을 선택하면 상세 정보와 달성 기록이 인쇄됩니다.</p>
+                <p style="color:var(--muted-color); font-size:0.95rem;">좌측 리스트에서 획득한 연대기를 선택하면 정밀 과학 보고서 및 드레이크 방정식 변동 정보가 로드됩니다.</p>
             </div>
         </div>
     </div>
 
+    <div id="ending-popup-overlay" class="overlay">
+        <div class="modal-content" style="border-color: #ffaa00; box-shadow: 0 0 40px rgba(255,170,0,0.5); max-width:480px;">
+            <h2 id="end-pop-title" style="color:#ffaa00; font-size:1.4rem; margin-bottom:12px;">🎉 새로운 엔딩 발견!</h2>
+            <div style="background:#050510; padding:15px; border-radius:8px; text-align:left; margin-bottom:20px; font-size:0.9rem; line-height:1.5;">
+                <p id="end-pop-desc" style="color:#fff; margin-bottom:10px;"></p>
+                <div id="end-pop-drake" style="color:var(--accent-color); font-family:monospace; border-top:1px dashed #2d2d5e; padding-top:8px;"></div>
+            </div>
+            <button class="std-btn" onclick="closeEndingPopup()">기록 후 환경 리셋</button>
+        </div>
+    </div>
+
     <div id="popup-overlay" class="overlay">
-        <div class="modal-content" style="max-width:400px;">
-            <h3 id="pop-title" style="color:var(--danger-color); margin-bottom:10px;">⚠️ 경고</h3>
-            <p id="pop-msg" style="margin-bottom:20px;">정말 진행하시겠습니까?</p>
-            <div style="display:flex; justify-content:center; gap:15px;">
+        <div class="modal-content" style="max-width:380px;">
+            <h3 id="pop-title" style="color:var(--danger-color); margin-bottom:12px; font-size:1.2rem;">⚠️ 확인 필요</h3>
+            <p id="pop-msg" style="margin-bottom:22px; font-size:0.9rem; color:#cbd5e0;"></p>
+            <div style="display:flex; justify-content:center; gap:12px;">
                 <button class="std-btn" id="pop-yes">확인</button>
-                <button class="std-btn" id="pop-no" style="border-color:#718096; color:#718096;">취소</button>
+                <button class="std-btn" id="pop-no" style="border-color:var(--muted-color); color:var(--muted-color);">취소</button>
             </div>
         </div>
     </div>
 
 <script>
-    // --- 글로벌 상태 관리 엔진 ---
-    let currentScreen = 'lobby';
-    let isTutorialDone = false;
-    
-    // 유저가 도감에 영구 해금한 엔딩 키 목록
-    let savedEndings = [];
+    // --- 유저 글로벌 저장소 데이터 엔진 ---
+    let savedEndings = []; 
+    let activeTrueEndingWatchMode = false; // 트루엔딩 감상 모드 플래그
 
-    // 엔딩 데이터 정의 구조체
+    // 30대 엔딩 정밀 뼈대 명세서 데이터셋
     const endingRegistry = {
         end1: {
-            title: "🔥 폭주한 온실효과의 지옥",
-            desc: "대기 중 온실가스가 극도에 달해 행성 전체가 마그마와 불바다로 뒤덮인 지옥 행성입니다.",
-            condStr: "조건: 온실가스 60% 이상 & 표면 온도 400°C 이상",
-            hint: "화학 계열의 '온실가스 농도'를 60% 위로 맹렬히 올리고, '표면 온도'를 400°C 이상으로 과열시키십시오.",
-            style: {
-                background: "radial-gradient(circle at 30% 30%, #ff3300, #ffaa00, #330000)",
-                boxShadow: "inset -20px -20px 50px #000, 0 0 40px rgba(255,51,0,0.8)"
-            }
+            title: "1. 폭주한 온실효과의 지옥 (금성형 엔딩)",
+            desc: "대기 중 탄소 가스가 극도에 달해 복사열 갇힘 현상이 발생하여 행성 표면 전체가 용암 대지로 강제 리모델링되었습니다.",
+            drake: "드레이크 방정식 변동: ne → 0, fl → 0",
+            hint: "온실가스 60% 이상, 항성 거리 0.7 AU 이하(슬라이더 70 이하), 표면 온도 400°C 이상을 충족하십시오.",
+            style: { background: "radial-gradient(circle at 30% 30%, #ff3300, #b31c00, #260000)", boxShadow: "inset -20px -20px 50px #000, 0 0 35px rgba(255,51,0,0.8)" }
         },
         end2: {
-            title: "❄️ 절대영도의 심해 동결 행성",
-            desc: "온도가 비정상적으로 급감하며 표면 수분이 전부 얼어붙어 모든 생체 대사가 영구 정지된 동토입니다.",
-            condStr: "조건: 표면 온도 -60°C 이하 & 표면 수분 함량 80% 이상",
-            hint: "'표면 온도'를 영하 -60°C 이하로 급랭시키고, '표면 수분 함량'을 80% 이상의 극대 대양 상태로 조정하세요.",
-            style: {
-                background: "radial-gradient(circle at 30% 30%, #a3e2f7, #3182ce, #0f172a)",
-                boxShadow: "inset -20px -20px 50px #000, 0 0 40px rgba(49,130,206,0.7)"
-            }
+            title: "2. 얼어붙은 불모의 땅 (화성형 엔딩)",
+            desc: "행성 내부의 화산 순환이 식으면서 중력과 자기장이 무너져 가스층이 우주 밖으로 유실된 혹독한 붉은 동토입니다.",
+            drake: "드레이크 방정식 변동: ne → 0, fl → 0",
+            hint: "행성 반지름 0.5배 이하(슬라이더 50 이하), 온실가스 1% 이하, 판구조 운동 빈도 5% 이하로 낮추세요.",
+            style: { background: "radial-gradient(circle at 30% 30%, #cc5a37, #7c321a, #1a0802)", boxShadow: "inset -20px -20px 45px #000, 0 0 25px rgba(204,90,55,0.5)" }
         },
         end3: {
-            title: "🌳 낙원의 요람: 가이아성",
-            desc: "가장 완벽한 황금대 조건이 조화를 이루어, 고도의 지능을 지닌 유기체 문명이 은하계에 탄생했습니다.",
-            condStr: "조건: 온도 15~30°C & 산소 20~30% & 수분 60~80% & 자기장 60% 이상",
-            hint: "지구와 유사한 환경이 답입니다. 온도는 15~30°C, 산소는 21% 내외, 수분은 60~80%, 자기장을 견고히 지키세요.",
-            style: {
-                background: "radial-gradient(circle at 30% 30%, #38a169, #3182ce, #1a202c)",
-                boxShadow: "inset -20px -20px 50px #000, 0 0 40px rgba(56,161,105,0.7)"
-            }
+            title: "3. 공유 결합의 파괴 (우주 방사선 엔딩)",
+            desc: "중심 유체 핵 대류가 정지하면서 행성 외곽 자기장 실드가 소멸되었습니다. 쏟아지는 태양풍이 유기물의 화학적 가교를 끊어냅니다.",
+            drake: "드레이크 방정식 변동: fl → 0",
+            hint: "지각 내부 열원(핵 대류) 10% 이하, 우주 방사선 노출도 80% 이상 조건을 정렬하십시오.",
+            style: { background: "radial-gradient(circle at 30% 30%, #805ad5, #44337a, #100826)", boxShadow: "inset -20px -20px 50px #000, 0 0 35px rgba(128,90,213,0.7)" }
         },
         end4: {
-            title: "👾 고농도 치사 전리 방사선 구역",
-            desc: "자기장 보호막이 소멸되어 우주 방사선이 행성을 관통하면서 변이된 기괴한 기계-생명체 제국입니다.",
-            condStr: "조건: 자기장 보호막 5% 이하 & 행성 질량비 80배 이상",
-            hint: "'자기장 보호막' 슬라이더를 바닥(5% 이하)으로 내리고, 중력을 높이기 위해 '행성 질량비'를 80배 이상으로 과부하 하세요.",
-            style: {
-                background: "radial-gradient(circle at 30% 30%, #b7791f, #805ad5, #2d3748)",
-                boxShadow: "inset -20px -20px 50px #000, 0 0 40px rgba(128,90,213,0.7)"
-            }
+            title: "4. 단백질 변성 지옥 (열/산성도 실패)",
+            desc: "환경의 수소이온 농도와 온도가 임계값을 넘어가 탄소 화합물 아미노산 입체 3차원 접힘 사슬이 전부 영구 응고되어 파괴되었습니다.",
+            drake: "드레이크 방정식 변동: fl → 0",
+            hint: "표면 온도 100°C 이상 또는 환경 산성도(pH) 2.0 이하(슬라이더 20 이하)로 맞추십시오.",
+            style: { background: "radial-gradient(circle at 30% 30%, #cc8400, #664200, #191000)", boxShadow: "inset -20px -20px 50px #000, 0 0 30px rgba(204,132,0,0.6)" }
+        },
+        end5: {
+            title: "5. 제인스 탈출의 비극 (낮은 중력)",
+            desc: "행성 체급이 너무 작아 기체 분자의 열운동 에너지를 지탱하지 못합니다. 원시 대기가 우주 밖으로 영구 흩어졌습니다.",
+            drake: "드레이크 방정식 변동: ne → 0",
+            hint: "행성 반지름 0.3배 이하(슬라이더 30 이하) 및 대기압 0.01 atm 이하(슬라이더 10 이하)로 인하하세요.",
+            style: { background: "radial-gradient(circle at 30% 30%, #718096, #4a5568, #1a202c)", boxShadow: "inset -15px -15px 40px #000, 0 0 15px rgba(255,255,255,0.1)" }
+        },
+        end6: {
+            title: "6. 가스 행성으로의 폭주 (높은 중력)",
+            desc: "암석 코어의 중력 흡입력이 한계를 돌파하여 주변 성간 가스인 수소와 헬륨을 폭발적으로 집어삼켜 목성형 기체 거대체로 진화했습니다.",
+            drake: "드레이크 방정식 변동: ne → 0",
+            hint: "초기 암석 핵 질량이 지구 기준 10배 이상(슬라이더 100 이상)일 때 폭주가 성립합니다.",
+            style: { background: "radial-gradient(circle at 30% 30%, #e28743, #964b16, #211308)", boxShadow: "inset -25px -25px 60px #000, 0 0 40px rgba(226,135,67,0.5)" }
+        },
+        end7: {
+            title: "7. 산소 독성 대멸종 (산화 스트레스)",
+            desc: "초기 광합성 속도가 자정 작용보다 빠르게 폭주하여 강한 산화력을 가진 활성 산소가 세포막 유기 구조를 전부 산화 부식시켰습니다.",
+            drake: "드레이크 방정식 변동: fl → 0",
+            hint: "산소 농도 비중을 25% 이상으로 급격하게 올려 과포화시키십시오.",
+            style: { background: "radial-gradient(circle at 30% 30%, #319795, #1d4ed8, #0b132b)", boxShadow: "inset -20px -20px 45px #000, 0 0 35px rgba(49,151,149,0.6)" }
+        },
+        end8: {
+            title: "8. CHNOPS 필수 원소 결핍 (유전 상실)",
+            desc: "대륙과 멘틀의 내부 지질 물질 대사 순환이 차단되어 DNA와 유전 백본을 구성할 인산염 및 황 공급량이 고갈되었습니다.",
+            drake: "드레이크 방정식 변동: fl → 0",
+            hint: "판구조 운동 빈도를 0%로 완전히 정지시켜 원소 순환을 차단하세요.",
+            style: { background: "radial-gradient(circle at 30% 30%, #4a5568, #2d3748, #0f172a)", boxShadow: "inset -20px -20px 40px #000, 0 0 15px rgba(255,255,255,0.05)" }
+        },
+        end9: {
+            title: "9. 거울상 미로의 저주 (카이랄성 불일치)",
+            desc: "L형 아미노산과 D형 아미노산이 1:1 완벽한 대칭 혼합을 유지하여 고분자 입체 펩타이드 사슬 중합이 성립되지 않고 진화가 정지되었습니다.",
+            drake: "드레이크 방정식 변동: fl → 0",
+            hint: "카이랄성 편향성 슬라이더를 정확히 50% 중심에 고정해 두십시오.",
+            style: { background: "radial-gradient(circle at 30% 30%, #48bb78, #38a169, #1c4530)", boxShadow: "inset -20px -20px 50px #000, 0 0 30px rgba(72,187,120,0.5)" }
+        },
+        end10: {
+            title: "10. 조석 고정의 비극 (대기 동결 엔딩)",
+            desc: "항성 강한 기조력으로 행성의 공전과 자전 주기비가 1:1로 묶였습니다. 빛을 받지 못하는 영구 후면부 대기가 얼어붙었습니다.",
+            drake: "드레이크 방정식 변동: ne → 0",
+            hint: "항성 거리를 0.1 AU 이하(슬라이더 10 이하), 자전/공전 동기화율을 100%로 최대 조작하세요.",
+            style: { background: "radial-gradient(circle at 30% 30%, #2b6cb0, #1a365d, #081026)", boxShadow: "inset -25px -25px 60px #000, 0 0 35px rgba(43,108,176,0.6)" }
+        },
+        end11: {
+            title: "11. 삼투압 쇼크 (초염수 행성)",
+            desc: "액체 용매의 증발과 대류 억제로 염화 나트륨 이온 농도가 포화되었습니다. 반투과성 세포막 내부 수분이 전부 빠져나갔습니다.",
+            drake: "드레이크 방정식 변동: fl → 0",
+            hint: "해수 염도 및 증발률 수치를 30% 이상으로 밀어 올려 고장액 조건을 만드세요.",
+            style: { background: "radial-gradient(circle at 30% 30%, #dd6b20, #9c4221, #311105)", boxShadow: "inset -20px -20px 45px #000, 0 0 25px rgba(221,107,32,0.5)" }
+        },
+        end12: {
+            title: "12. 절대 drought (무용매 엔딩)",
+            desc: "유기 기질 분자들이 서로 충돌하고 이온화되어 유기물 스프를 이룰 유동성 액체 용매가 한 방울도 존재하지 않습니다.",
+            drake: "드레이크 방정식 변동: ne → 0",
+            hint: "행성 총 수분량 눈금을 0% 바닥으로 내리십시오.",
+            style: { background: "radial-gradient(circle at 30% 30%, #744210, #432007, #130700)", boxShadow: "inset -20px -20px 40px #000, 0 0 15px rgba(116,66,16,0.4)" }
+        },
+        end13: {
+            title: "13. 동결된 탄소 순환 (빙하기 엔딩)",
+            desc: "상층 대기에 깔린 고밀도 먼지가 항성 에너지 유입을 반사 차단하여 피드백 냉각 루프가 발생해 행성 전체가 얼음공이 되었습니다.",
+            drake: "드레이크 방정식 변동: fl → 0, fi → 0",
+            hint: "대기 에어로졸(반사율)을 80% 이상으로 극대화 배정하십시오.",
+            style: { background: "radial-gradient(circle at 30% 30%, #edf2f7, #a0aec0, #2d3748)", boxShadow: "inset -20px -20px 50px #000, 0 0 30px rgba(237,242,247,0.6)" }
+        },
+        end14: {
+            title: "14. 방사성 붕괴 열 부족 (지질학적 사망)",
+            desc: "초기 무거운 우라늄 핵종 동위원소량이 미달되어 맨틀 순환과 화산 가스 방출이 모두 정지되어 지질학적 죽음을 맞이했습니다.",
+            drake: "드레이크 방정식 변동: ne → 0, fl → 0",
+            hint: "방사성 동위원소 비중 수치를 10% 이하로 차단 설정하세요.",
+            style: { background: "radial-gradient(circle at 30% 30%, #4a5568, #2d3748, #11151c)", boxShadow: "inset -15px -15px 40px #000, 0 0 10px rgba(255,255,255,0.05)" }
+        },
+        end15: {
+            title: "15. 항성의 조기 퇴화 (초신성 엔딩)",
+            desc: "중심 모항성의 질량 체급이 비정상적으로 비대하여 지성체가 진화할 시간을 벌기도 전에 수억 년 만에 폭발 파멸했습니다.",
+            drake: "드레이크 방정식 변동: L → 0",
+            hint: "모항성 질량 체급 슬라이더를 3.0 M☉ 이상(슬라이더 30 이상)으로 폭증시켜 우주적 주기를 앞당기세요.",
+            style: { background: "radial-gradient(circle at 30% 30%, #3182ce, #2b6cb0, #091a36)", boxShadow: "inset -20px -20px 50px #000, 0 0 50px rgba(49,130,206,0.9)" }
+        },
+        end16: {
+            title: "16. 푸른 보석의 기적 (지구형 표준 문명)",
+            desc: "완벽한 열역학적 궤도 안착과 기압, 풍부한 액체 상태의 물이 시너지를 발휘하여 표준형 탄소 생태계 문명이 수립되었습니다.",
+            drake: "드레이크 방정식 변동: fl → 1.0, fi → 1.0, fc → 1.0",
+            hint: "기압 1.0atm(슬라이더 100), 평균 기온 15°C 내외, 수분량 70% 근방의 황금 밸런스를 유도하세요.",
+            style: { background: "radial-gradient(circle at 30% 30%, #2b6cb0, #319795, #0f172a)", boxShadow: "inset -20px -20px 50px #000, 0 0 35px rgba(43,108,176,0.7)" }
+        },
+        end17: {
+            title: "17. 메탄 바다의 개척자 (타이탄형 저온 문명)",
+            desc: "초저온 상태에서 물 대신 액체 탄화수소 메탄을 용매로 채택한 아조토솜 기반 외계 지능 집단이 관측되었습니다.",
+            drake: "드레이크 방정식 변동: fl → 0.8, fi → 0.4",
+            hint: "기온 -180°C 이하 및 행성 총 수분량 10% 이하 조건에서 온실가스를 올려 대체 탄화수소를 유도하세요.",
+            style: { background: "radial-gradient(circle at 30% 30%, #d69e2e, #744210, #1c1105)", boxShadow: "inset -20px -20px 45px #000, 0 0 30px rgba(214,158,46,0.6)" }
+        },
+        end18: {
+            title: "18. 얼음 밑의 지성 (에우로파형 심해 문명)",
+            desc: "표면 전체는 수십 킬로미터의 두꺼운 빙각층으로 덮여 있으나 강한 기조력 내부 열이 바닥면 열수구 생태계 문명을 개화했습니다.",
+            drake: "드레이크 방정식 변동: fl → 0.9, fi → 0.7",
+            hint: "기온 -100°C 이하 극저온 상태에서 지각 내부 열원을 80% 이상으로 증폭 가동시키세요.",
+            style: { background: "radial-gradient(circle at 30% 30%, #63b3ed, #2b6cb0, #0d1b2a)", boxShadow: "inset -25px -25px 50px #000, 0 0 30px rgba(99,179,237,0.6)" }
+        },
+        end19: {
+            title: "19. 암모니아 바다의 현자 (저온 고압 문명)",
+            desc: "강한 고압 조건 하에 물보다 어는점이 낮은 액체 암모니아(NH3) 분자가 용매 역할을 대행하여 대사 속도가 느린 한대종 현자들이 출현했습니다.",
+            drake: "드레이크 방정식 변동: fl → 0.85, fi → 0.6",
+            hint: "대기압 5 atm 이상(슬라이더 500 이상) 및 기온 영하 -40°C 근방의 교집합을 확보하세요.",
+            style: { background: "radial-gradient(circle at 30% 30%, #4fd1c5, #234e52, #051417)", boxShadow: "inset -20px -20px 50px #000, 0 0 30px rgba(79,209,197,0.5)" }
+        },
+        end20: {
+            title: "20. 초지구의 거인들 (고중력 암석문명)",
+            desc: "거대한 암석 핵 체급과 밀도 높은 짙은 대기압을 극복하기 위해 물리적으로 단단한 외골격과 초음파 감각을 개척한 거인 종족의 탄생입니다.",
+            drake: "드레이크 방정식 변동: fl → 1.0, fi → 0.9",
+            hint: "행성 반지름 1.5배 이상(슬라이더 150 이상) 및 대기압 3 atm 이상(슬라이더 300 이상)을 가미하십시오.",
+            style: { background: "radial-gradient(circle at 30% 30%, #2c5282, #1a365d, #030812)", boxShadow: "inset -20px -20px 55px #000, 0 0 30px rgba(44,82,130,0.6)" }
+        },
+        end21: {
+            title: "21. 영원한 황혼의 생존자 (적색왜성 플레어 문명)",
+            desc: "중심 항성의 무자비한 자외선 플레어 폭사를 흡수하여 형광 생소 단백질 에너지로 자체 큐어링 변환하는 생명 문명 형태입니다.",
+            drake: "드레이크 방정식 변동: fl → 0.75, L → 지속성 극대화",
+            hint: "모항성 질량 체급 2 이하로 설정 후, 우주 방사선 노출도를 90% 이상으로 가중시키세요.",
+            style: { background: "radial-gradient(circle at 30% 30%, #e53e3e, #742a2a, #230808)", boxShadow: "inset -20px -20px 50px #000, 0 0 35px rgba(229,62,62,0.7)" }
+        },
+        end22: {
+            title: "22. 끝없는 대양의 지배자 (워터월드 문명)",
+            desc: "육지가 0%인 무한의 해양 행성입니다. 금속 연마 야철 공학은 가동 불가능하나 전류 자극 신경망으로 고도 정보 사회를 이룩했습니다.",
+            drake: "드레이크 방정식 변동: fl → 0.95, fi → 0.8, fc → 유기 전송선",
+            hint: "행성 총 수분량을 95% 이상 맥시멈 시스템으로 수렴 주입하십시오.",
+            style: { background: "radial-gradient(circle at 30% 30%, #00bfff, #005f9e, #001a33)", boxShadow: "inset -25px -25px 60px #000, 0 0 40px rgba(0,191,255,0.7)" }
+        },
+        end23: {
+            title: "23. 방랑하는 가이아 (자유떠돌이 행성 문명)",
+            desc: "모항성 중력권 이탈로 암흑 성간 구역을 홀로 떠돌아다니나, 초고압 분자 수소(H2) 기체 단열막이 지열을 보존하여 독자 생태계를 사수했습니다.",
+            drake: "드레이크 방정식 변동: fl → 0.5, fi → 0.3",
+            hint: "항성 거리를 5.00 AU 최대치(슬라이더 500)로 유도하고 대기압을 800 이상 극대화하십시오.",
+            style: { background: "radial-gradient(circle at 30% 30%, #2d3748, #1a202c, #020408)", boxShadow: "inset -20px -20px 45px #000, 0 0 15px rgba(255,255,255,0.05)" }
+        },
+        end24: {
+            title: "24. 규소 기반의 불사조 (고온 화산 문명)",
+            desc: "탄소 기반 사슬이 다 녹아내리는 불지옥 오븐 온도 환경에서 탄소 동형 원소인 규소(Si)가 유전 분자 골격을 이룬 특이점 문명입니다.",
+            drake: "드레이크 방정식 변동: fl → 0.4, fi → 0.3",
+            hint: "표면 온도를 250°C 안팎 고온으로 고정해 두고, 지각 내부 열원을 90% 이상 활성화하세요.",
+            style: { background: "radial-gradient(circle at 30% 30%, #ed8936, #7b341e, #2d120a)", boxShadow: "inset -20px -20px 50px #000, 0 0 35px rgba(237,137,54,0.6)" }
+        },
+        end25: {
+            title: "25. 초광합성 에메랄드 행성 (K형 항성 문명)",
+            desc: "태양보다 조용하고 차분한 오렌지빛 K형 주계열성 궤도 아래에서 지각 탄소 대순환계가 극효율로 작동하는 전 행성적 하이브 마인드 식물 낙원입니다.",
+            drake: "드레이크 방정식 변동: fl → 1.0, fi → 0.95",
+            hint: "모항성 체급을 6(지구 태양보다 살짝 가볍게)으로 셋팅 후, 판구조 운동 빈도를 80% 이상 고장형 순환으로 맞추세요.",
+            style: { background: "radial-gradient(circle at 30% 30%, #48bb78, #22543d, #081c10)", boxShadow: "inset -20px -20px 50px #000, 0 0 35px rgba(72,187,120,0.6)" }
+        },
+        end26: {
+            title: "26. 부동액 세포의 기적 (알코올 용매 문명)",
+            desc: "영하권 결빙점 기온에서 세포 대사 기질 내에 천연 글리세롤 부동 완충액 농도를 증폭시켜 세포 결정화를 방지해 초장수 세포 유도 트랙을 수립했습니다.",
+            drake: "드레이크 방정식 변동: fl → 0.8, L → 생체 수명 극대화",
+            hint: "평균 기온을 -30°C 부근 영하로 유지하고, 카이랄성 편향 수치를 90% 비대칭으로 정밀 제어하세요.",
+            style: { background: "radial-gradient(circle at 30% 30%, #a3bffa, #5a67d8, #1a1c4b)", boxShadow: "inset -20px -20px 45px #000, 0 0 25px rgba(163,191,250,0.5)" }
+        },
+        end27: {
+            title: "27. 대안 핵산의 개척자 (XNA 유전 문명)",
+            desc: "지구의 일반 리보스 당 백본 구조를 이탈하여, 복제 오류 및 돌연변이 암 발생률이 0%에 도달하는 유전 구조 변형 XNA 문명이 관측되었습니다.",
+            drake: "드레이크 방정식 변동: fl → 0.99, fi → 0.99",
+            hint: "카이랄성 편향성을 95% 이상 극한 편중으로 조정한 뒤 산소 비중을 21% 표준 상태로 보정하세요.",
+            style: { background: "radial-gradient(circle at 30% 30%, #ed64a6, #9b2c2c, #3a0818)", boxShadow: "inset -20px -20px 50px #000, 0 0 35px rgba(237,100,166,0.6)" }
+        },
+        end28: {
+            title: "28. 황산 구름의 비행선 (상층 대기 문명)",
+            desc: "지표면은 400도가 넘는 고압 금성 상태이나, 고도 50km 상공 온화 대기층 기압 균형점에서 수소 부력 주머니를 달고 날아다니는 기기묘묘한 비행 문명입니다.",
+            drake: "드레이크 방정식 변동: fl → 0.6, fi → 0.4",
+            hint: "대기압을 600 이상 초고압으로 가하되, 우주 방사선 차단율을 낮춰 상층 노출을 강제 유도하세요.",
+            style: { background: "radial-gradient(circle at 30% 30%, #ecc94b, #744210, #2d1e05)", boxShadow: "inset -20px -20px 45px #000, 0 0 30px rgba(236,201,75,0.6)" }
+        },
+        end29: {
+            title: "29. 극한 환경의 생명 공학자 (방사능 적응 문명)",
+            desc: "핵방사능 돌연변이 유발 계수를 초고속으로 짜 맞추는 DNA 자가 복구 효소 유전자를 내재화하여 전리 방사선을 밥 먹듯이 섭취하는 지성체 제국입니다.",
+            drake: "드레이크 방정식 변동: fl → 0.7, fi → 0.5",
+            hint: "우주 방사선 노출도 95% 맥시멈 상태에서 지각 내부 열원을 70% 이상 동반 가동하십시오.",
+            style: { background: "radial-gradient(circle at 30% 30%, #ed64a6, #6b46c1, #1a0b36)", boxShadow: "inset -20px -20px 45px #000, 0 0 40px rgba(237,100,166,0.6)" }
+        },
+        end30: {
+            title: "30. 가이아 네트워크 (궁극의 TRUE ENDING)",
+            desc: "축하합니다. 우주 시뮬레이터 시스템 내의 모든 물리 결함 조건과 외계 대안 지능 연대기 노선을 100% 동기화 마스터했습니다. 은하계 전체가 하나의 거대한 홀로그램 다차원 초연결 지능 네트워크로 통합 진화하여 영생의 시대로 진입합니다.",
+            drake: "드레이크 방정식 변동: N → 은하계 최대 중첩 도달, L → ∞ (영원)",
+            hint: "1번부터 29번까지의 모든 선행 연대기 데이터 수집 완료 시 자동 트리거 개방.",
+            style: { background: "radial-gradient(circle at center, #00ffff 0%, #7d00ff 50%, #03001e 100%)", boxShadow: "0 0 60px rgba(0,255,255,0.9), inset 0 0 40px #fff" }
         }
     };
 
@@ -407,7 +686,6 @@
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(`${screenName}-screen`).classList.add('active');
 
-        // 버튼 상호작용 표출 여부
         const backBtn = document.getElementById('back-btn');
         const resetBtn = document.getElementById('reset-btn');
 
@@ -416,7 +694,8 @@
             resetBtn.style.display = 'none';
         } else if(screenName === 'game') {
             backBtn.style.display = 'flex';
-            resetBtn.style.display = 'flex';
+            // 감상 모드 상태에서는 리셋 차단
+            resetBtn.style.display = activeTrueEndingWatchMode ? 'none' : 'flex';
         } else if(screenName === 'book') {
             backBtn.style.display = 'flex';
             resetBtn.style.display = 'none';
@@ -424,11 +703,13 @@
     }
 
     function pressStart() {
-        if(!isTutorialDone) {
-            changeScreen('tutorial');
-        } else {
+        if(activeTrueEndingWatchMode) {
+            // 트루엔딩 감상 완료 후에는 정상 진입 가능케 분기 처리
             changeScreen('game');
+            return;
         }
+        if(!isTutorialDone) { changeScreen('tutorial'); } 
+        else { changeScreen('game'); }
     }
 
     function exitTutorial() {
@@ -436,111 +717,170 @@
         changeScreen('game');
     }
 
-    // --- 인게임 데이터 연산 및 엔딩 감지 엔진 ---
+    // --- 수치 라벨 및 슬라이더 인쇄 연동 ---
     function updateValues() {
+        if(activeTrueEndingWatchMode) return; // 감상 모드 시 연산 중단
+
+        const dist = (parseInt(document.getElementById('p-dist').value) / 100).toFixed(2);
         const temp = parseInt(document.getElementById('p-temp').value);
+        const radius = (parseInt(document.getElementById('p-radius').value) / 10).toFixed(1);
+        const mass = (parseInt(document.getElementById('p-mass').value) / 10).toFixed(1);
         const green = parseInt(document.getElementById('p-green').value);
-        const mass = parseInt(document.getElementById('p-mass').value);
-        const mag = parseInt(document.getElementById('p-mag').value);
-        const oxygen = parseInt(document.getElementById('p-oxygen').value);
+        const core = parseInt(document.getElementById('p-core').value);
+        const rad = parseInt(document.getElementById('p-rad').value);
+        const ph = (parseInt(document.getElementById('p-ph').value) / 10).toFixed(1);
+        const atm = (parseInt(document.getElementById('p-atm').value) / 100).toFixed(2);
+        const o2 = parseInt(document.getElementById('p-o2').value);
+        const tect = parseInt(document.getElementById('p-tect').value);
+        const chiral = parseInt(document.getElementById('p-chiral').value);
+        const sync = parseInt(document.getElementById('p-sync').value);
+        const salt = parseInt(document.getElementById('p-salt').value);
         const water = parseInt(document.getElementById('p-water').value);
+        const albedo = parseInt(document.getElementById('p-albedo').value);
+        const iso = parseInt(document.getElementById('p-iso').value);
+        const star = (parseInt(document.getElementById('p-star').value) / 10).toFixed(1);
 
-        // 라벨 실시간 연동
+        document.getElementById('lbl-dist').innerText = dist + " AU";
         document.getElementById('lbl-temp').innerText = temp + "°C";
+        document.getElementById('lbl-radius').innerText = radius + " R⊕";
+        document.getElementById('lbl-mass').innerText = mass + " M⊕";
         document.getElementById('lbl-green').innerText = green + "%";
-        document.getElementById('lbl-mass').innerText = (mass/10).toFixed(1) + " M⊕";
-        document.getElementById('lbl-mag').innerText = mag + "%";
-        document.getElementById('lbl-oxygen').innerText = oxygen + "%";
+        document.getElementById('lbl-core').innerText = core + "%";
+        document.getElementById('lbl-rad').innerText = rad + "%";
+        document.getElementById('lbl-ph').innerText = ph + " pH";
+        document.getElementById('lbl-atm').innerText = atm + " atm";
+        document.getElementById('lbl-o2').innerText = o2 + "%";
+        document.getElementById('lbl-tect').innerText = tect + "%";
+        document.getElementById('lbl-chiral').innerText = chiral + "%";
+        document.getElementById('lbl-sync').innerText = sync + "%";
+        document.getElementById('lbl-salt').innerText = salt + "%";
         document.getElementById('lbl-water').innerText = water + "%";
+        document.getElementById('lbl-albedo').innerText = albedo + "%";
+        document.getElementById('lbl-iso').innerText = iso + "%";
+        document.getElementById('lbl-star').innerText = star + " M☉";
 
-        checkEndingConditions(temp, green, mass, mag, oxygen, water);
+        // 정밀 마스터 엔딩 매트릭스 필터 스캔
+        check30EndingsLogic(dist, temp, radius, mass, green, core, rad, ph, atm, o2, tect, chiral, sync, salt, water, albedo, iso, star);
     }
 
-    function checkEndingConditions(temp, green, mass, mag, oxygen, water) {
+    // --- 30종 방대 기계 조건 연산 필터 (중복 실행 방지 설계) ---
+    function check30EndingsLogic(dist, temp, radius, mass, green, core, rad, ph, atm, o2, tect, chiral, sync, salt, water, albedo, iso, star) {
         let triggeredKey = null;
 
-        // 엔딩 조건부 대입 
-        if (green >= 60 && temp >= 400) {
-            triggeredKey = 'end1';
-        } else if (temp <= -60 && water >= 80) {
-            triggeredKey = 'end2';
-        } else if (temp >= 15 && temp <= 30 && oxygen >= 20 && oxygen <= 30 && water >= 60 && water <= 80 && mag >= 60) {
-            triggeredKey = 'end3';
-        } else if (mag <= 5 && mass >= 80) {
-            triggeredKey = 'end4';
-        }
+        if (green >= 60 && dist <= 0.70 && temp >= 400 && !savedEndings.includes('end1')) { triggeredKey = 'end1'; }
+        else if (radius <= 0.5 && green <= 1 && tect <= 5 && !savedEndings.includes('end2')) { triggeredKey = 'end2'; }
+        else if (core <= 10 && rad >= 80 && !savedEndings.includes('end3')) { triggeredKey = 'end3'; }
+        else if ((temp >= 100 || ph <= 2.0) && !savedEndings.includes('end4')) { triggeredKey = 'end4'; }
+        else if (radius <= 0.3 && atm <= 0.01 && !savedEndings.includes('end5')) { triggeredKey = 'end5'; }
+        else if (mass >= 10.0 && !savedEndings.includes('end6')) { triggeredKey = 'end6'; }
+        else if (o2 >= 25 && !savedEndings.includes('end7')) { triggeredKey = 'end7'; }
+        else if (tect === 0 && !savedEndings.includes('end8')) { triggeredKey = 'end8'; }
+        else if (chiral === 50 && !savedEndings.includes('end9')) { triggeredKey = 'end9'; }
+        else if (dist <= 0.10 && sync === 100 && !savedEndings.includes('end10')) { triggeredKey = 'end10'; }
+        else if (salt >= 30 && !savedEndings.includes('end11')) { triggeredKey = 'end11'; }
+        else if (water <= 0.01 && !savedEndings.includes('end12')) { triggeredKey = 'end12'; }
+        else if (albedo >= 80 && !savedEndings.includes('end13')) { triggeredKey = 'end13'; }
+        else if (iso <= 10 && !savedEndings.includes('end14')) { triggeredKey = 'end14'; }
+        else if (star >= 3.0 && !savedEndings.includes('end15')) { triggeredKey = 'end15'; }
+        else if (atm >= 0.9 && atm <= 1.1 && temp >= 13 && temp <= 18 && water >= 65 && water <= 75 && !savedEndings.includes('end16')) { triggeredKey = 'end16'; }
+        else if (temp <= -170 && water <= 10 && green >= 40 && !savedEndings.includes('end17')) { triggeredKey = 'end17'; }
+        else if (temp <= -100 && core >= 80 && !savedEndings.includes('end18')) { triggeredKey = 'end18'; }
+        else if (atm >= 5.0 && temp >= -50 && temp <= -30 && !savedEndings.includes('end19')) { triggeredKey = 'end19'; }
+        else if (radius >= 1.5 && atm >= 3.0 && !savedEndings.includes('end20')) { triggeredKey = 'end20'; }
+        else if (star <= 2.0 && rad >= 90 && !savedEndings.includes('end21')) { triggeredKey = 'end21'; }
+        else if (water >= 95 && !savedEndings.includes('end22')) { triggeredKey = 'end22'; }
+        else if (dist >= 5.0 && atm >= 8.0 && !savedEndings.includes('end23')) { triggeredKey = 'end23'; }
+        else if (temp >= 190 && temp <= 310 && core >= 90 && !savedEndings.includes('end24')) { triggeredKey = 'end24'; }
+        else if (star >= 0.5 && star <= 0.7 && tect >= 80 && !savedEndings.includes('end25')) { triggeredKey = 'end25'; }
+        else if (temp <= -25 && temp >= -35 && chiral >= 90 && !savedEndings.includes('end26')) { triggeredKey = 'end26'; }
+        else if (chiral >= 95 && o2 >= 20 && o2 <= 22 && !savedEndings.includes('end27')) { triggeredKey = 'end27'; }
+        else if (atm >= 6.0 && rad <= 20 && !savedEndings.includes('end28')) { triggeredKey = 'end28'; }
+        else if (rad >= 95 && core >= 70 && !savedEndings.includes('end29')) { triggeredKey = 'end29'; }
 
         if (triggeredKey) {
-            executeEndingTrigger(triggeredKey);
+            popEndingWindow(triggeredKey);
         }
     }
 
-    // 엔딩 연출 및 리셋 연계 시스템
-    function executeEndingTrigger(key) {
-        const data = endingRegistry[key];
-        
-        // 1. 행성 그래픽 및 계측 텍스트 실시간 반영
-        const mesh = document.getElementById('planet-mesh');
-        mesh.style.background = data.style.background;
-        mesh.style.boxShadow = data.style.boxShadow;
-        document.getElementById('obs-status').innerHTML = `⚠️ [관측 완료]: ${data.title}`;
+    // --- 중앙 팝업창 형식 엔딩 발동기 ---
+    let pendingResetKey = null;
 
-        // 2. 신규 발견 시 도감 적재
+    function popEndingWindow(key) {
+        pendingResetKey = key;
+        const data = endingRegistry[key];
+
+        // 대기 화면 텍스트 조율
+        document.getElementById('end-pop-title').innerText = `🎉 연대기 해금: 엔딩 ${key.replace('end','')}`;
+        document.getElementById('end-pop-desc').innerText = `${data.title}\n\n${data.desc}`;
+        document.getElementById('end-pop-drake').innerText = data.drake;
+
+        // 중앙 집중형 오버레이 노출
+        document.getElementById('ending-popup-overlay').style.display = 'flex';
+
+        // 도감 시스템 즉시 적재
         if (!savedEndings.includes(key)) {
             savedEndings.push(key);
         }
-
-        // 3. 엔딩 고지 후 즉시 환경 장치 초기화 (무한 루프 방지 핵심)
-        setTimeout(() => {
-            alert(`🎉 [엔딩 연산 성공]\n\n'${data.title}'을(를) 관측 및 영구 해금했습니다!\n확인을 누르면 환경 조건이 초기화되며 다음 탐색 모드로 전환됩니다.`);
-            
-            // 올컬렉션 유무 체크 후 트루엔딩 분기점 가동
-            if (savedEndings.length === Object.keys(endingRegistry).length) {
-                triggerTrueEnding();
-            } else {
-                silentResetEnv();
-            }
-        }, 600);
     }
 
-    // 트루 엔딩 연출
-    function triggerTrueEnding() {
-        alert("✨✨ [TRUE ENDING: 생명의 마스터] ✨✨\n\n모든 변수의 특이점을 관측하여 우주의 기원을 파헤쳤습니다! 은하 연대기 데이터가 완벽하게 동기화되었습니다. 시뮬레이션을 마칩니다.");
-        savedEndings = []; // 도감 리셋 후 초기 로비행
-        silentResetEnv();
-        changeScreen('lobby');
-    }
-
-    // 조건값 컴팩트 리셋 (도감 내역은 보존)
-    function silentResetEnv() {
-        document.getElementById('p-temp').value = 15;
-        document.getElementById('p-green').value = 10;
-        document.getElementById('p-mass').value = 10;
-        document.getElementById('p-mag').value = 50;
-        document.getElementById('p-oxygen').value = 21;
-        document.getElementById('p-water').value = 70;
+    function closeEndingPopup() {
+        document.getElementById('ending-popup-overlay').style.display = 'none';
         
-        // 기본 기본 원시 행성 디자인 백업
+        // 동적 비주얼 임시 적용
+        const data = endingRegistry[pendingResetKey];
         const mesh = document.getElementById('planet-mesh');
-        mesh.style.background = "radial-gradient(circle at 30% 30%, #4a5568, #2d3748, #1a202c)";
-        mesh.style.boxShadow = "inset -20px -20px 50px #000, 0 0 20px rgba(255,255,255,0.1)";
-        document.getElementById('obs-status').innerText = "[ 관측 진행 중 ]: 안정한 원시 행성";
+        mesh.style.background = data.style.background;
+        mesh.style.boxShadow = data.style.boxShadow;
+        document.getElementById('obs-status').innerText = `⚠️ [최근 관측]: ${data.title.split('(')[0]}`;
+
+        // 전체 해금 검사 분기점 처리
+        if (savedEndings.length === 29 && !savedEndings.includes('end30')) {
+            savedEndings.push('end30'); // True 엔딩 자동 해금 유도
+            alert("✨ [연대기 특이점 발생] ✨\n\n29종의 하위 우주 연대기를 모두 수집하여 숨겨진 마지막 프로토콜 '30. 가이아 네트워크(TRUE ENDING)'가 도감에 등록되었습니다! 엔딩 북에서 연대기를 가동하십시오.");
+        }
+
+        silentResetEnv();
+    }
+
+    // 조작 조건 컴팩트 초기화 프로토콜
+    function silentResetEnv() {
+        document.getElementById('p-dist').value = 100;
+        document.getElementById('p-temp').value = 15;
+        document.getElementById('p-radius').value = 10;
+        document.getElementById('p-mass').value = 10;
+        document.getElementById('p-green').value = 10;
+        document.getElementById('p-core').value = 50;
+        document.getElementById('p-rad').value = 10;
+        document.getElementById('p-ph').value = 70;
+        document.getElementById('p-atm').value = 100;
+        document.getElementById('p-o2').value = 21;
+        document.getElementById('p-tect').value = 50;
+        document.getElementById('p-chiral').value = 50;
+        document.getElementById('p-sync').value = 0;
+        document.getElementById('p-salt').value = 3;
+        document.getElementById('p-water').value = 70;
+        document.getElementById('p-albedo').value = 30;
+        document.getElementById('p-iso').value = 50;
+        document.getElementById('p-star').value = 10;
+
+        activeTrueEndingWatchMode = false;
         updateValues();
     }
 
-    // --- 힌트 디스플레이어 ---
+    // --- 변수 부가 정보 툴팁 안내 ---
+    function checkParamInfo(title, msg) {
+        alert(`[계측 환경 가이드 - ${title}]\n\n${msg}`);
+    }
+
+    // --- 연구 힌트 전구 모듈 ---
     function viewHint() {
         const targetKey = document.getElementById('hint-selector').value;
         const info = endingRegistry[targetKey];
-        document.getElementById('hint-display-box').innerHTML = `<strong>💡 [분석 가이드]</strong><br><br>${info.hint}`;
+        document.getElementById('hint-display-box').innerHTML = `<strong>💡 [연구 개발 단서]</strong><br>${info.title}<br><br><span style='color:#e2e8f0;'>${info.hint}</span>`;
     }
 
-    function checkParamInfo(title, msg) {
-        alert(`[변수 분석 툴팁 - ${title}]\n\n${msg}`);
-    }
-
-    // --- 상단 네비게이션 트리거 및 커스텀 팝업 프로토콜 ---
-    function openModalPopup(title, msg, onYes) {
+    // --- 공통 알림/확인 전용 모달 창 제어 ---
+    function openConfirmPopup(title, msg, onYes) {
         const overlay = document.getElementById('popup-overlay');
         document.getElementById('pop-title').innerText = title;
         document.getElementById('pop-msg').innerText = msg;
@@ -551,8 +891,8 @@
     }
 
     function requestGoLobby() {
-        if(currentScreen === 'game') {
-            openModalPopup("🛸 로비 이동", "메인 화면으로 복귀하시겠습니까? (기존 상태는 보존되며 재입장 시 이어하기가 가능합니다.)", () => {
+        if(currentScreen === 'game' && !activeTrueEndingWatchMode) {
+            openConfirmPopup("🛸 연구실 이탈", "로비 스크린으로 이동하시겠습니까? (현재 설정된 수치는 임시 보존 처리됩니다.)", () => {
                 changeScreen('lobby');
             });
         } else {
@@ -561,12 +901,17 @@
     }
 
     function requestReset() {
-        openModalPopup("⚠️ 경고: 수치 초기화", "정말 행성의 모든 물리적 연산 조건을 초기 단계로 포맷하시겠습니까? (도감 해금 내역은 영구 유지됩니다.)", () => {
+        openConfirmPopup("🔄 연산 장치 공장 초기화", "정말 행성의 모든 수치 조건을 완전한 초기 상태로 포맷하시겠습니까? (도감 수집 데이터는 영구 보존됩니다.)", () => {
+            // 원시 행성 원복
+            const mesh = document.getElementById('planet-mesh');
+            mesh.style.background = "radial-gradient(circle at 30% 30%, #4a5568, #2d3748, #1a202c)";
+            mesh.style.boxShadow = "inset -20px -20px 60px #000, 0 0 25px rgba(255,255,255,0.08)";
+            document.getElementById('obs-status').innerText = "[ 시스템 가동 중 ]: 안정한 상태";
             silentResetEnv();
         });
     }
 
-    // --- 엔딩 북 UI 랜더링 머신 ---
+    // --- 엔딩북(도감) 동적 마운트 렌더링 장치 ---
     function openEndingBook() {
         changeScreen('book');
         const grid = document.getElementById('ending-grid-container');
@@ -575,23 +920,30 @@
         Object.keys(endingRegistry).forEach((key, idx) => {
             const data = endingRegistry[key];
             const isUnlocked = savedEndings.includes(key);
-            
+            const isTrueEnd = (key === 'end30');
+
             const slot = document.createElement('div');
-            slot.className = `ending-slot ${isUnlocked ? 'unlocked' : ''}`;
-            slot.innerText = isUnlocked ? `🔓 엔딩 ${idx+1}` : `🔒 미발견 엔딩 ${idx+1}`;
+            // 해금 여부 및 트루엔딩 스페셜 클래스 분기
+            slot.className = `ending-slot ${isUnlocked ? 'unlocked' : ''} ${isTrueEnd && isUnlocked ? 'true-end-slot' : ''}`;
+            slot.innerText = isUnlocked ? `🔓 [해금] 엔딩 ${idx+1}` : `🔒 미발견 연대기 ${idx+1}`;
             
             slot.onclick = () => {
                 const detailBox = document.getElementById('book-detail');
                 if (isUnlocked) {
+                    let actionBtnHTML = "";
+                    if(isTrueEnd) {
+                        actionBtnHTML = `<br><br><button class='std-btn' style='border-color:#ff00ff; color:#ff00ff;' onclick='launchTrueEndWatch()'>가이아 네트워크 가동 (시뮬레이터 이동)</button>`;
+                    }
                     detailBox.innerHTML = `
-                        <h3 style="color:var(--accent-color); margin-bottom:15px;">${data.title}</h3>
-                        <p style="font-size:0.95rem; line-height:1.6; color:#e2e8f0; margin-bottom:15px;">${data.desc}</p>
-                        <div style="background:#060613; padding:10px; border-radius:4px; font-size:0.85rem; color:#4fd1c5; font-family:monospace;">${data.condStr}</div>
+                        <h3 style="color:${isTrueEnd ? '#ff00ff':'var(--accent-color)'}; margin-bottom:15px; font-size:1.15rem;">${data.title}</h3>
+                        <p style="font-size:0.9rem; line-height:1.6; color:#e2e8f0; margin-bottom:15px; text-align:left;">${data.desc}</p>
+                        <div style="background:#050510; padding:10px; border-radius:5px; font-size:0.8rem; color:#4fd1c5; font-family:monospace; text-align:left;">${data.drake}</div>
+                        ${actionBtnHTML}
                     `;
                 } else {
                     detailBox.innerHTML = `
-                        <h3 style="color:#718096; margin-bottom:15px;">🔒 미지의 기록</h3>
-                        <p style="color:#4a5568;">시뮬레이터를 통해 행성에 충격을 주고 특이 조건을 조합하여 이 데이터를 연독하십시오.</p>
+                        <h3 style="color:var(--muted-color); margin-bottom:12px;">🔒 기밀 프로토콜</h3>
+                        <p style="color:#4a5568; font-size:0.88rem;">시뮬레이터 제어반에서 변수 임계점을 돌파해 우주 역사의 기록을 연독하십시오.</p>
                     `;
                 }
             };
@@ -599,9 +951,42 @@
         });
     }
 
-    // 어플리케이션 구동 준비
+    // [요구사항] 트루엔딩 클릭 시 인게임 화면으로 넘어가서 마지막 행성 비주얼을 사수하며 시뮬레이션을 종결하는 연출기
+    function launchTrueEndWatch() {
+        activeTrueEndingWatchMode = true;
+        changeScreen('game');
+
+        const data = endingRegistry['end30'];
+        const mesh = document.getElementById('planet-mesh');
+        
+        // 궁극의 가이아 초연결 다차원 그라데이션 광원 주입
+        mesh.style.background = data.style.background;
+        mesh.style.boxShadow = data.style.boxShadow;
+        document.getElementById('obs-status').innerHTML = `🌌 [TRUE ENDING] : ${data.title}`;
+        
+        // 조작계 패널 인터랙션 잠금 가시화 유도
+        document.getElementById('hint-display-box').innerHTML = `<span style='color:#ff00ff; font-weight:bold;'>[연대기 마스터 완료]</span><br><br>은하계의 모든 행성 정보망이 단일 초지능 매트릭스로 융합되었습니다. 더 이상의 물리 변수 제어는 불필요합니다.`;
+        
+        alert("🪐 [가이아 네트워크 활성화]\n\n최종 진화된 영생의 다차원 초연결 행성 인프라를 인게임 뷰어에서 감상하십시오.");
+    }
+
+    // --- 초기 런타임 마운트 ---
+    let isTutorialDone = false;
+    let currentScreen = 'lobby';
+
     window.onload = () => {
-        updateValues();
+        // 1번부터 29번까지의 전구 힌트 선택 상자 목록 동적 가공 빌드
+        const selector = document.getElementById('hint-selector');
+        Object.keys(endingRegistry).forEach((key, idx) => {
+            if(key !== 'end30') { // 30번 트루엔딩은 힌트창에서 제외
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.innerText = `엔딩 ${idx+1} 힌트`;
+                selector.appendChild(opt);
+            }
+        });
+
+        silentResetEnv();
     };
 </script>
 
