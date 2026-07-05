@@ -914,4 +914,67 @@
             const isTrueEnd = (key === 'end30');
 
             const slot = document.createElement('div');
-            slot.className = `ending-slot ${isUnlocked ? 'unlocked' : ''} ${isTrueEnd && isUnlocked ? 'true
+            slot.className = `ending-slot ${isUnlocked ? 'unlocked' : ''} ${isTrueEnd && isUnlocked ? 'true-end-slot' : ''}`;
+            slot.innerText = isUnlocked ? `🔓 [해금] 엔딩 ${idx+1}` : `🔒 미발견 연대기 ${idx+1}`;
+            
+            slot.onclick = () => {
+                const detailBox = document.getElementById('book-detail');
+                if (isUnlocked) {
+                    let actionBtnHTML = "";
+                    if(isTrueEnd) {
+                        actionBtnHTML = `<br><br><button class='std-btn' style='border-color:#ff00ff; color:#ff00ff;' onclick='launchTrueEndWatch()'>가이아 네트워크 가동 (시뮬레이터 이동)</button>`;
+                    }
+                    detailBox.innerHTML = `
+                        <h3 style="color:${isTrueEnd ? '#ff00ff':'var(--accent-color)'}; margin-bottom:15px; font-size:1.15rem;">${data.title}</h3>
+                        <p style="font-size:0.9rem; line-height:1.6; color:#e2e8f0; margin-bottom:15px; text-align:left;">${data.desc}</p>
+                        <div style="background:#050510; padding:10px; border-radius:5px; font-size:0.8rem; color:#4fd1c5; font-family:monospace; text-align:left;">${data.drake}</div>
+                        ${actionBtnHTML}
+                    `;
+                } else {
+                    detailBox.innerHTML = `
+                        <h3 style="color:var(--muted-color); margin-bottom:12px;">🔒 기밀 프로토콜</h3>
+                        <p style="color:#4a5568; font-size:0.88rem;">시뮬레이터 제어반에서 변수 임계점을 돌파해 우주 역사의 기록을 연독하십시오.</p>
+                    `;
+                }
+            };
+            grid.appendChild(slot);
+        });
+    }
+
+    function launchTrueEndWatch() {
+        activeTrueEndingWatchMode = true;
+        changeScreen('game');
+
+        const data = endingRegistry['end30'];
+        const mesh = document.getElementById('planet-mesh');
+        
+        mesh.style.background = data.style.background;
+        mesh.style.boxShadow = data.style.boxShadow;
+        document.getElementById('obs-status').innerHTML = `🌌 [TRUE ENDING] : ${data.title}`;
+        
+        document.getElementById('hint-display-box').innerHTML = `<span style='color:#ff00ff; font-weight:bold;'>[연대기 마스터 완료]</span><br><br>은하계의 모든 행성 정보망이 단일 초지능 매트릭스로 융합되었습니다. 더 이상의 물리 변수 제어는 불필요합니다.`;
+        
+        alert("🪐 [가이아 네트워크 활성화]\n\n최종 진화된 영생의 다차원 초연결 행성 인프라를 인게임 뷰어에서 감상하십시오.");
+    }
+
+    // --- 초기 런타임 마운트 ---
+    let isTutorialDone = false;
+    let currentScreen = 'lobby';
+
+    window.onload = () => {
+        const selector = document.getElementById('hint-selector');
+        Object.keys(endingRegistry).forEach((key, idx) => {
+            if(key !== 'end30') { 
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.innerText = `엔딩 ${idx+1} 힌트`;
+                selector.appendChild(opt);
+            }
+        });
+
+        silentResetEnv();
+    };
+</script>
+
+</body>
+</html>
