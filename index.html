@@ -143,7 +143,7 @@
 
         .modal-content h2 { margin-bottom: 18px; color: var(--accent-color); }
         .modal-content p { font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px; color: #cbd5e0; }
-        
+       
         .std-btn {
             background: transparent;
             border: 1px solid var(--accent-color);
@@ -201,7 +201,7 @@
             border-radius: 50%;
             background: radial-gradient(circle at 30% 30%, #4a5568, #2d3748, #1a202c);
             box-shadow: inset -20px -20px 60px #000, 0 0 20px rgba(255,255,255,0.1);
-            transition: width 0.4s ease, height 0.4s ease, filter 0.3s ease, box-shadow 0.3s ease;
+            transition: width 0.4s ease, height 0.4s ease, filter 0.3s ease, box-shadow 0.3s ease, background 0.4s ease;
             position: relative;
         }
 
@@ -229,7 +229,7 @@
         .section-title { font-size: 0.95rem; color: var(--accent-color); margin: 15px 0 10px 0; border-left: 3px solid var(--accent-color); padding-left: 8px; font-weight: bold; }
         .control-item { margin-bottom: 12px; }
         .control-header { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; color: #a0aec0; }
-        
+       
         /* 직접 클릭해 적을수 있는 숫자 영역 스펙 */
         .clickable-value {
             color: #fff;
@@ -261,9 +261,9 @@
         .ending-slot.unlocked { border-color: var(--accent-color); color: #fff; background: rgba(0,255,255,0.04); font-weight: bold; }
         .ending-slot.unlocked.true-end-slot { border-color: #ff00ff; color: #ffbcff; background: rgba(255, 0, 255, 0.1); }
         .ending-slot.unlocked.hidden-end-slot { border-color: #ffaa00; color: #ffe6b3; background: rgba(255, 170, 0, 0.1); }
-        
+       
         .ending-detail-panel { background: rgba(11,11,36,0.9); border: 1px solid rgba(0,255,255,0.25); border-radius: 10px; padding: 25px; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; text-align: center; height: 68vh; overflow-y: auto; }
-        
+       
         /* 도감 속 미니어처 행성 틀 */
         .book-mini-planet {
             width: 100px;
@@ -273,6 +273,30 @@
             background: #4a5568;
             box-shadow: inset -10px -10px 30px #000;
             display: none;
+        }
+
+        /* 4. 미니게임 스크린 스타일 */
+        #game-canvas {
+            background: #020208;
+            border: 2px solid var(--accent-color);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            border-radius: 8px;
+            display: block;
+        }
+        .mg-ctrl-btn {
+            width: 80px;
+            height: 50px;
+            background: var(--panel-color);
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .mg-ctrl-btn:active {
+            background: var(--accent-color);
+            color: #000;
         }
 
         /* 공통 백드롭 오버레이 */
@@ -304,7 +328,8 @@
                 '바이오 코스모스' 연구 제어반에 오신 것을 환영합니다.<br>
                 화면에 배치된 거시 변수를 조작하고 수치 단위를 직접 터치해 직접 값을 적어보세요.<br>
                 <strong>주의:</strong> 우측 💡힌트를 한 번도 보지 않고 독자적으로 연구를 완수하면<br>
-                비밀리에 감춰진 최상위 31번째 특수 전설 연대기가 개방됩니다!
+                비밀리에 감춰진 최상위 31번째 특수 전설 연대기가 개방됩니다!<br>
+                (단, 도감 하단의 미니게임을 깨서 얻는 힌트는 받아도 자격이 유지됩니다.)
             </p>
             <button class="std-btn" onclick="exitTutorial()">방정식 시뮬레이터 가동</button>
         </div>
@@ -312,10 +337,10 @@
 
     <div id="game-screen" class="screen">
         <div class="game-layout">
-            
+           
             <div class="game-panel">
                 <div class="section-title">궤도 및 거시 물리 변수</div>
-                
+               
                 <div class="control-item">
                     <div class="control-header"><span>항성 거리 (AU)</span><span id="lbl-dist" class="clickable-value" onclick="promptDirectInput('p-dist', '항성 거리 (0.01 ~ 5.00 AU 사이 값을 입력하세요)', 100, 2)">1.50 AU</span></div>
                     <div class="slider-row">
@@ -494,6 +519,20 @@
         </div>
     </div>
 
+    <div id="minigame-screen" class="screen">
+        <div class="modal-content" style="max-width: 450px; padding: 20px;">
+            <h2 id="mg-title" style="font-size: 1.3rem; margin-bottom: 10px;">☄️ 데이터 복구: 운석 회피 프로토콜</h2>
+            <p id="mg-timer" style="font-size: 1.1rem; color: #ffaa00; margin-bottom: 10px; font-weight: bold;">남은 시간: 10.0초</p>
+            <canvas id="game-canvas" width="400" height="400"></canvas>
+            <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 15px;">
+                <button class="mg-ctrl-btn" id="mg-left-btn">◀</button>
+                <button class="std-btn" onclick="stopMiniGame(false)" style="border-color: var(--danger-color); color: var(--danger-color);">포기하기</button>
+                <button class="mg-ctrl-btn" id="mg-right-btn">▶</button>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--muted-color); margin-top: 10px;">방향키(◀/▶) 또는 하단 버튼으로 우주선을 조작하세요.</p>
+        </div>
+    </div>
+
     <div id="info-modal-overlay" class="overlay">
         <div class="modal-content" style="border-color: var(--accent-color); max-width:420px;">
             <h3 id="info-modal-title" style="color:var(--accent-color); margin-bottom:15px; font-size:1.25rem;">가이드</h3>
@@ -537,11 +576,20 @@
     </div>
 
 <script>
-    let savedEndings = []; 
+    let savedEndings = [];
     let activeTrueEndingWatchMode = false;
     let isTutorialDone = false;
     let currentScreen = 'lobby';
-    let hintUsed = false; // 힌트 사용 여부 추적 엔진
+    let hintUsed = false; // 오직 우측의 직접 💡힌트 버튼 클릭 시에만 활성화됨
+
+    // 미니게임 상태 관리 시스템 변수
+    let mgCanvas, mgCtx;
+    let mgLoopId = null;
+    let mgTimeLeft = 10;
+    let mgPlayerX = 185;
+    let mgMeteors = [];
+    let mgKeys = { Left: false, Right: false };
+    let mgTargetEndingKey = null;
 
     // 31대 엔딩 명세서 원형 데이터
     const endingRegistry = {
@@ -603,7 +651,7 @@
         },
         end9: {
             title: "9. 거울상 미로의 저주 (카이랄성 불일치)",
-            desc: "L형 아미노산과 D형 아미노산이 1:1 완벽한 대칭 혼합을 유지하여 고분자 입체 펩타이드 사슬 중합이 성립되지 않고 진화가 정지되었습니다.",
+            desc: "L형 아미노산 and D형 아미노산이 1:1 완벽한 대칭 혼합을 유지하여 고분자 입체 펩타이드 사슬 중합이 성립되지 않고 진화가 정지되었습니다.",
             drake: "드레이크 방정식 변동: fl → 0",
             hint: "카이랄성 편향성 슬라이더를 정확히 50% 중심에 고정해 두십시오.",
             style: { background: "radial-gradient(circle at 30% 30%, #48bb78, #38a169, #1c4530)", boxShadow: "inset -20px -20px 50px #000, 0 0 30px rgba(72,187,120,0.5)" }
@@ -774,7 +822,7 @@
         const scoreBoard = document.getElementById('current-score-board');
         const resetBtn = document.getElementById('reset-btn');
 
-        if(screenName === 'lobby' || screenName === 'tutorial') {
+        if(screenName === 'lobby' || screenName === 'tutorial' || screenName === 'minigame') {
             backBtn.style.display = 'none';
             scoreBoard.style.display = 'none';
             resetBtn.style.display = 'none';
@@ -797,7 +845,7 @@
 
     function pressStart() {
         if(activeTrueEndingWatchMode) { changeScreen('game'); return; }
-        if(!isTutorialDone) { changeScreen('tutorial'); } 
+        if(!isTutorialDone) { changeScreen('tutorial'); }
         else { changeScreen('game'); }
     }
 
@@ -822,11 +870,11 @@
         const slider = document.getElementById(id);
         document.getElementById('input-modal-title').innerText = "수치 직접 제어";
         document.getElementById('input-modal-msg').innerText = message;
-        
+       
         const currentVal = (parseFloat(slider.value) / scaleFactor).toFixed(precision);
         const inputField = document.getElementById('input-modal-field');
         inputField.value = currentVal;
-        
+       
         document.getElementById('input-modal-overlay').style.display = 'flex';
         inputField.focus();
 
@@ -851,9 +899,9 @@
         document.getElementById('input-modal-overlay').style.display = 'none';
     }
 
-    // --- 수치 피드백 및 행성 시각화 동적 렌더링 물리 엔진 ---
+    // --- 수치 피드백 및 행성 시각화 동적 렌더링 물리 엔진 (전체 조건 결합 반응) ---
     function updateValues() {
-        if(activeTrueEndingWatchMode) return; 
+        if(activeTrueEndingWatchMode) return;
 
         const dist = (parseInt(document.getElementById('p-dist').value) / 100).toFixed(2);
         const temp = parseInt(document.getElementById('p-temp').value);
@@ -893,21 +941,62 @@
         document.getElementById('lbl-iso').innerText = iso + "%";
         document.getElementById('lbl-star').innerText = star + " M☉";
 
-        // [시각 요소 구현 1] 반지름 연동형 실시간 크기 변동
         const mesh = document.getElementById('planet-mesh');
-        let pixelSize = 80 + (radius * 12); 
+        
+        // [시각화 확장] 모든 조건에 반응하는 다이나믹 색상 엔진 구현
+        let r = 74, g = 85, b = 104; // 기본 암석 회색조
+        
+        // 1. 온도 & 온실가스 기여 (고온/온실 = 붉은빛 가중, 저온 = 푸른빛 백색 가중)
+        if (temp > 50) {
+            r += Math.min(150, (temp - 50) * 0.4);
+            g -= Math.min(50, (temp - 50) * 0.2);
+        } else if (temp < -20) {
+            b += Math.min(130, Math.abs(temp) * 0.6);
+            g += Math.min(60, Math.abs(temp) * 0.2);
+            r -= Math.min(40, Math.abs(temp) * 0.2);
+        }
+        if (green > 30) { r += (green - 30); }
+
+        // 2. 수분량 & 염도 기여 (물 많으면 바다색 깊어짐, 소금 많으면 에메랄드/브라운 변색)
+        if (water > 20) {
+            b = Math.min(255, b + (water * 1.5));
+            g = Math.min(200, g + (water * 0.5));
+            r = Math.max(10, r - (water * 0.6));
+        }
+        if (salt > 20) { g += (salt * 0.8); r += (salt * 0.3); }
+
+        // 3. 산소 & 판구조 기여 (산소가 많고 지질 활동 활발하면 생명력 넘치는 녹색계열 바이어스)
+        if (o2 > 15 && water > 20) {
+            g = Math.min(230, g + (o2 * 1.8));
+            b = Math.max(20, b - (o2 * 0.3));
+        }
+        if (tect > 60) { r += 20; g += 10; } // 판구조 활성화 시 미세한 마그마 균열 톤
+
+        // 4. 우주 방사선 & 산성도 기여 (방사선 = 보랏빛 변이, 강산성 = 황록색 탈색)
+        if (rad > 50) { r += (rad - 50); b += (rad - 50) * 1.2; }
+        if (ph < 4.0) { g += 40; r += 30; b -= 30; }
+
+        r = Math.max(0, Math.min(255, Math.round(r)));
+        g = Math.max(0, Math.min(255, Math.round(g)));
+        b = Math.max(0, Math.min(255, Math.round(b)));
+
+        // 구체 그라데이션 적용
+        mesh.style.background = `radial-gradient(circle at 30% 30%, rgb(${r},${g},${b}), rgb(${Math.round(r*0.5)},${Math.round(g*0.5)},${Math.round(b*0.5)}), #050510)`;
+
+        // 반지름 연동형 실시간 크기 변동
+        let pixelSize = 80 + (radius * 12);
         if(pixelSize < 40) pixelSize = 40;
         if(pixelSize > 250) pixelSize = 250;
         mesh.style.width = pixelSize + "px";
         mesh.style.height = pixelSize + "px";
 
-        // [시각 요소 구현 2] 대기압 세기에 따른 주변 희뿌연 광막 두께 피드백 효과
+        // 대기압 세기에 따른 주변 희뿌연 광막 두께 피드백 효과
         let blurFilter = "none";
         let glowShadow = "inset -20px -20px 60px #000";
         if(atm <= 0.1) {
             glowShadow += ", 0 0 0px rgba(0,0,0,0)";
         } else {
-            let glowRadius = atm * 8; 
+            let glowRadius = atm * 8;
             if(glowRadius > 45) glowRadius = 45;
             glowShadow += `, 0 0 ${glowRadius}px rgba(0, 255, 255, ${0.1 + (atm*0.1)})`;
             if(atm >= 5.0) {
@@ -917,7 +1006,7 @@
         mesh.style.boxShadow = glowShadow;
         mesh.style.filter = blurFilter;
 
-        // [시각 요소 구현 3] 내부 지질 열원 폭주 시 부글부글 꿈틀대는 떨림 애니메이션 발동
+        // 내부 지질 열원 폭주 시 부글부글 꿈틀대는 떨림 애니메이션 발동
         if(core >= 75) {
             mesh.classList.add('boiling');
         } else {
@@ -985,17 +1074,19 @@
 
     function closeEndingPopup() {
         document.getElementById('ending-popup-overlay').style.display = 'none';
-        
+       
         const data = endingRegistry[pendingResetKey];
         const mesh = document.getElementById('planet-mesh');
-        mesh.style.background = data.style.background;
-        mesh.style.boxShadow = data.style.boxShadow;
-        document.getElementById('obs-status').innerText = `⚠️ [최근 관측]: ${data.title.split('(')[0]}`;
+        if(data && data.style) {
+            mesh.style.background = data.style.background;
+            mesh.style.boxShadow = data.style.boxShadow;
+            document.getElementById('obs-status').innerText = `⚠️ [최근 관측]: ${data.title.split('(')[0]}`;
+        }
 
         // 30번 및 31번 특수 루트 판단 트리거
-        if (savedEndings.length === 29 && !savedEndings.includes('end30')) {
+        if (savedEndings.filter(e => e !== 'end30' && e !== 'end31').length === 29 && !savedEndings.includes('end30')) {
             savedEndings.push('end30');
-            
+           
             // 만약 전구 찬스를 단 한번도 쓰지 않았다면 31번 히든 직관 엔딩도 동시 해금
             if(!hintUsed && !savedEndings.includes('end31')) {
                 savedEndings.push('end31');
@@ -1008,26 +1099,25 @@
         silentResetEnv();
     }
 
-    // 초기값 롤백 시 9, 16번 엔딩이 즉시 자폭 해금되는 버그 원천 차단
     function silentResetEnv() {
         document.getElementById('p-dist').value = 150;  
         document.getElementById('p-temp').value = -50;  
-        document.getElementById('p-radius').value = 10; 
-        document.getElementById('p-mass').value = 10;   
-        document.getElementById('p-green').value = 5;   
-        document.getElementById('p-core').value = 50;   
+        document.getElementById('p-radius').value = 10;
+        document.getElementById('p-mass').value = 10;  
+        document.getElementById('p-green').value = 5;  
+        document.getElementById('p-core').value = 50;  
         document.getElementById('p-rad').value = 10;    
-        document.getElementById('p-ph').value = 70;     
-        document.getElementById('p-atm').value = 50;    // 0.50 atm으로 시작 (16번 자폭 방지)
+        document.getElementById('p-ph').value = 70;    
+        document.getElementById('p-atm').value = 50;    
         document.getElementById('p-o2').value = 5;      
-        document.getElementById('p-tect').value = 50;   
-        document.getElementById('p-chiral').value = 10;  // 10%로 시작 (9번 자폭 방지)
+        document.getElementById('p-tect').value = 50;  
+        document.getElementById('p-chiral').value = 10;  
         document.getElementById('p-sync').value = 0;    
         document.getElementById('p-salt').value = 3;    
-        document.getElementById('p-water').value = 10;   // 10%로 시작 (16번 자폭 방지)
+        document.getElementById('p-water').value = 10;   
         document.getElementById('p-albedo').value = 30;  
         document.getElementById('p-iso').value = 50;    
-        document.getElementById('p-star').value = 10;   
+        document.getElementById('p-star').value = 10;  
 
         activeTrueEndingWatchMode = false;
         updateValues();
@@ -1039,7 +1129,122 @@
         hintUsed = true; // 힌트 사용 즉시 기록됨 (31번 락다운)
         const targetKey = document.getElementById('hint-selector').value;
         const info = endingRegistry[targetKey];
-        document.getElementById('hint-display-box').innerHTML = `<strong>💡 [연구 개발 단서]</strong><br>${info.title}<br><br><span style='color:#e2e8f0;'>${info.hint}</span><br><br><span style='color:var(--danger-color); font-size:0.75rem;'>* 힌트를 열람하여 이번 회차 히든 31번 엔딩 해금 자격이 소멸되었습니다.</span>`;
+        document.getElementById('hint-display-box').innerHTML = `<strong>💡 [연구 개발 단서]</strong><br>${info.title}<br><br><span style='color:#e2e8f0;'>${info.hint}</span><br><br><span style='color:var(--danger-color); font-size:0.75rem;'>* 직접적인 힌트 모듈을 열람하여 이번 회차 히든 31번 엔딩 해금 자격이 소멸되었습니다.</span>`;
+    }
+
+    // --- 미니게임 시스템 엔진 내부 연동 모듈 ---
+    function startMiniGame(targetKey) {
+        mgTargetEndingKey = targetKey;
+        mgTimeLeft = 10.0;
+        mgPlayerX = 185;
+        mgMeteors = [];
+        mgKeys = { Left: false, Right: false };
+        
+        changeScreen('minigame');
+        
+        mgCanvas = document.getElementById('game-canvas');
+        mgCtx = mgCanvas.getContext('2d');
+        
+        // 키 바인딩 설정
+        window.addEventListener('keydown', handleMgKeyDown);
+        window.addEventListener('keyup', handleMgKeyUp);
+        
+        // 모바일 터치 대응 바인딩
+        const lBtn = document.getElementById('mg-left-btn');
+        const rBtn = document.getElementById('mg-right-btn');
+        lBtn.onmousedown = lBtn.ontouchstart = () => { mgKeys.Left = true; };
+        lBtn.onmouseup = lBtn.ontouchend = () => { mgKeys.Left = false; };
+        rBtn.onmousedown = rBtn.ontouchstart = () => { mgKeys.Right = true; };
+        rBtn.onmouseup = rBtn.ontouchend = () => { mgKeys.Right = false; };
+        
+        if(mgLoopId) clearInterval(mgLoopId);
+        mgLoopId = setInterval(updateMiniGame, 1000 / 60); // 60fps 루프 구동
+    }
+
+    function handleMgKeyDown(e) {
+        if(e.key === 'ArrowLeft') mgKeys.Left = true;
+        if(e.key === 'ArrowRight') mgKeys.Right = true;
+    }
+    function handleMgKeyUp(e) {
+        if(e.key === 'ArrowLeft') mgKeys.Left = false;
+        if(e.key === 'ArrowRight') mgKeys.Right = false;
+    }
+
+    function updateMiniGame() {
+        // 1. 타이머 차감
+        mgTimeLeft -= 1 / 60;
+        if(mgTimeLeft <= 0) {
+            mgTimeLeft = 0;
+            stopMiniGame(true); // 성공 판정
+            return;
+        }
+        document.getElementById('mg-timer').innerText = `남은 시간: ${mgTimeLeft.toFixed(1)}초`;
+
+        // 2. 플레이어(우주선) 위치 연산
+        if(mgKeys.Left) mgPlayerX -= 5;
+        if(mgKeys.Right) mgPlayerX += 5;
+        if(mgPlayerX < 0) mgPlayerX = 0;
+        if(mgPlayerX > 370) mgPlayerX = 370; // 캔버스 영역 내 래핑
+
+        // 3. 운석 무작위 드롭 가중치 연산
+        if(Math.random() < 0.07) {
+            mgMeteors.push({
+                x: Math.random() * 380,
+                y: -20,
+                speed: 3 + Math.random() * 4,
+                r: 8 + Math.random() * 10
+            });
+        }
+
+        // 4. 화면 클리어 및 프레임 묘화
+        mgCtx.clearRect(0, 0, 400, 400);
+
+        // 플레이어 본체(우주선 - 민트빛 삼각형) 그리기
+        mgCtx.fillStyle = '#00ffff';
+        mgCtx.beginPath();
+        mgCtx.moveTo(mgPlayerX + 15, 360);
+        mgCtx.lineTo(mgPlayerX, 390);
+        mgCtx.lineTo(mgPlayerX + 30, 390);
+        mgCtx.closePath();
+        mgCtx.fill();
+
+        // 운석 객체 갱신 및 충돌 검사 루프
+        mgCtx.fillStyle = '#ff0055';
+        for(let i = mgMeteors.length - 1; i >= 0; i--) {
+            let m = mgMeteors[i];
+            m.y += m.speed;
+
+            // 운석 묘화
+            mgCtx.beginPath();
+            mgCtx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
+            mgCtx.fill();
+
+            // 원형-삼각형 단순 피트 축 히트박스 충돌 판정
+            let pCenterX = mgPlayerX + 15;
+            let pCenterY = 375;
+            let dist = Math.hypot(m.x - pCenterX, m.y - pCenterY);
+            if(dist < m.r + 15) {
+                stopMiniGame(false); // 충돌 패배 판정
+                alert("💥 운석과 충돌하여 우주선이 파괴되었습니다! 다시 시도해 주세요.");
+                return;
+            }
+
+            // 화면 밖 무효 객체 청소
+            if(m.y > 420) mgMeteors.splice(i, 1);
+        }
+    }
+
+    function stopMiniGame(isSuccess) {
+        clearInterval(mgLoopId);
+        window.removeEventListener('keydown', handleMgKeyDown);
+        window.removeEventListener('keyup', handleMgKeyUp);
+        
+        if(isSuccess) {
+            const data = endingRegistry[mgTargetEndingKey];
+            alert(`🛰️ 데이터 복구 완료!\n\n[계측 조건 정보]:\n${data.hint}`);
+        }
+        
+        openEndingBook(); // 무조건 도감 스크린으로 회귀
     }
 
     // --- 공통 안내용 컨펌 팝업 ---
@@ -1048,7 +1253,7 @@
         document.getElementById('pop-title').innerText = title;
         document.getElementById('pop-msg').innerText = msg;
         overlay.style.display = 'flex';
-        
+       
         document.getElementById('pop-yes').onclick = () => { overlay.style.display = 'none'; onYes(); };
         document.getElementById('pop-no').onclick = () => { overlay.style.display = 'none'; };
     }
@@ -1089,7 +1294,7 @@
             }
             slot.className = slotClass;
             slot.innerText = isUnlocked ? `🔓 [해금] 엔딩 ${idx+1}` : `🔒 미발견 연대기 ${idx+1}`;
-            
+           
             slot.onclick = () => {
                 const detailBox = document.getElementById('book-detail');
                 if (isUnlocked) {
@@ -1097,20 +1302,26 @@
                     if(isTrueEnd) {
                         actionBtnHTML = `<br><button class='std-btn' style='border-color:#ff00ff; color:#ff00ff;' onclick='launchTrueEndWatch()'>가이아 네트워크 가동</button>`;
                     }
-                    
+                   
                     detailBox.innerHTML = `
                         <h3 style="color:${isTrueEnd ? '#ff00ff' : (isHiddenEnd ? '#ffaa00' : 'var(--accent-color)')}; margin-bottom:10px; font-size:1.15rem;">${data.title}</h3>
-                        
+                       
                         <div class="book-mini-planet" id="mini-mesh" style="display:block; background:${data.style.background}; box-shadow:${data.style.boxShadow};"></div>
-                        
+                       
                         <p style="font-size:0.9rem; line-height:1.5; color:#e2e8f0; margin-bottom:15px; text-align:left;">${data.desc}</p>
                         <div style="width:100%; background:#050510; padding:10px; border-radius:5px; font-size:0.8rem; color:#4fd1c5; font-family:monospace; text-align:left;">${data.drake}</div>
                         ${actionBtnHTML}
                     `;
                 } else {
+                    // 미해금 연대기일 때 미니게임 우회 단서 획득 트리거 배정
+                    let miniGameBtnHTML = "";
+                    if(key !== 'end30' && key !== 'end31') {
+                        miniGameBtnHTML = `<br><button class='std-btn' style='margin-top:15px; border-color:var(--accent-color);' onclick='startMiniGame("${key}")'>🪐 조건 힌트 미니게임 시작</button>`;
+                    }
                     detailBox.innerHTML = `
                         <h3 style="color:var(--muted-color); margin-bottom:12px;">🔒 기밀 프로토콜</h3>
                         <p style="color:#4a5568; font-size:0.88rem;">제어반 변수 값을 조작해 수집 라인을 개척하세요.</p>
+                        ${miniGameBtnHTML}
                     `;
                 }
             };
@@ -1124,14 +1335,14 @@
 
         const data = endingRegistry['end30'];
         const mesh = document.getElementById('planet-mesh');
-        
+       
         mesh.style.background = data.style.background;
         mesh.style.boxShadow = data.style.boxShadow;
         mesh.style.width = "180px";
         mesh.style.height = "180px";
         mesh.style.filter = "none";
         mesh.classList.remove('boiling');
-        
+       
         document.getElementById('obs-status').innerHTML = `🌌 [TRUE ENDING] : ${data.title}`;
         document.getElementById('hint-display-box').innerHTML = `<span style='color:#ff00ff; font-weight:bold;'>[연대기 마스터 완료]</span><br><br>은하 전역이 지능 매트릭스로 통합되었습니다.`;
     }
@@ -1139,7 +1350,7 @@
     window.onload = () => {
         const selector = document.getElementById('hint-selector');
         Object.keys(endingRegistry).forEach((key, idx) => {
-            if(key !== 'end30' && key !== 'end31') { 
+            if(key !== 'end30' && key !== 'end31') {
                 const opt = document.createElement('option');
                 opt.value = key;
                 opt.innerText = `엔딩 ${idx+1} 힌트`;
